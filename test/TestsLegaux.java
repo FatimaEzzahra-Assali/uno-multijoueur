@@ -14,7 +14,7 @@ public class TestsLegaux {
     private Partie partie;
 
     @BeforeEach
-    public void setup() {
+    public void initialiser() {
         // Cartes de départ pour les joueurs
         alice = new Joueur("Alice");
         alice.ajouterCarte(new CarteSimple(Couleur.VERT, 2));   // à jouer
@@ -49,37 +49,73 @@ public class TestsLegaux {
     }
 
     @Test
-    public void testAliceJoueCarteValideEtPasseTour() throws Exception {
-        // Vérifier que le joueur courant est Alice
+    public void testAliceJoueCarteBonneCouleur() throws Exception {
+        //Vérifier que le joueur courant est Alice
         assertEquals("Alice", partie.getJoueurCourant().getNom());
-
-        // Vérifier que Alice a bien 3 cartes
+        //Vérifier que Alice a bien 3 cartes
         assertEquals(3, alice.getNombreCartes());
-
-        // Alice joue le 2 Vert
+        //Alice joue le 2 Vert
         CarteSimple deuxVert = (CarteSimple) alice.getMain().get(0);
         alice.poserCarte(deuxVert, partie);
-
-        // Vérifier qu'elle a maintenant 2 cartes
+        //Vérifier qu'elle a maintenant 2 cartes
         assertEquals(2, alice.getNombreCartes());
-
-        // Vérifier que ses cartes sont le 6 jaune et le 1 rouge
+        //Vérifier que ses cartes sont le 6 jaune et le 1 rouge
         assertTrue(alice.getMain().stream().anyMatch(c -> c instanceof CarteSimple && ((CarteSimple) c).getValeur() == 6 && c.getCouleur() == Couleur.JAUNE));
         assertTrue(alice.getMain().stream().anyMatch(c -> c instanceof CarteSimple && ((CarteSimple) c).getValeur() == 1 && c.getCouleur() == Couleur.ROUGE));
-
-        // Vérifier que la carte au sommet du tas est le 2 Vert
+        //Vérifier que la carte au sommet du tas est le 2 Vert
         Carte sommet = partie.getTas().sommet();
         assertTrue(sommet instanceof CarteSimple);
         assertEquals(Couleur.VERT, sommet.getCouleur());
         assertEquals(2, ((CarteSimple) sommet).getValeur());
-
-        // Vérifier que le nombre de cartes dans le tas est 2
+        //Vérifier que le nombre de cartes dans le tas est 2
         assertEquals(2, partie.getTas().taille());
+        //Alice finit son tour
+        partie.finirTour();
+        //Vérifier que le joueur courant est maintenant Bob
+        assertEquals("Bob", partie.getJoueurCourant().getNom());
+    }
 
-        // Alice finit son tour
+    @Test
+    public void testBobJoueCarteCouleurDifferenteEtMemeValeur() throws Exception {
+        //D'abord Alice joue son tour
+        CarteSimple deuxVert = (CarteSimple) alice.getMain().get(0);
+        alice.poserCarte(deuxVert, partie);
         partie.finirTour();
 
-        // Vérifier que le joueur courant est maintenant Bob
+        //Vérifier que Bob possède bien 3 cartes
         assertEquals("Bob", partie.getJoueurCourant().getNom());
+        //Vérifier que Bob a bien 3 cartes
+        assertEquals(3, bob.getNombreCartes());
+        //Bob pose le 2 Bleu
+        CarteSimple deuxBleu = (CarteSimple) bob.getMain().get(0);
+        bob.poserCarte(deuxBleu, partie);
+        //Vérifier que Bob a maintenant 2 cartes
+        assertEquals(2, bob.getNombreCartes());
+        //Vérifier que ses cartes sont le 4 Jaune et le 9 Rouge
+        boolean quatreJaunePresent = false;
+        boolean neufRougePresent = false;
+        for (Carte c : bob.getMain()) {
+            if (c instanceof CarteSimple) {
+                CarteSimple carte = (CarteSimple) c;
+                if (carte.getValeur() == 4 && carte.getCouleur() == Couleur.JAUNE) {
+                    quatreJaunePresent = true;
+                }
+                if (carte.getValeur() == 9 && carte.getCouleur() == Couleur.ROUGE) {
+                    neufRougePresent = true;
+                }
+            }
+        }
+        assertTrue(quatreJaunePresent);
+        assertTrue(neufRougePresent);
+        //Vérifier que la carte au sommet du tas est le 2 Bleu
+        Carte sommet = partie.getTas().sommet();
+        assertEquals(Couleur.BLEU, sommet.getCouleur());
+        assertEquals(2, ((CarteSimple) sommet).getValeur());
+        //Vérifier que le nombre de cartes dans le tas est 3
+        assertEquals(3, partie.getTas().taille());
+        //Bob finit son tour
+        partie.finirTour();
+        //Vérifier que le joueur courant est maintenant Charles
+        assertTrue(partie.getJoueurCourant().getNom() == "Charles");
     }
 }
