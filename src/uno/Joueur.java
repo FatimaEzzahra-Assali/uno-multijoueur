@@ -26,25 +26,39 @@ public class Joueur {
         main.add(carte);
     }
 
-    public void piocher(Pioche pioche) {
-        if (!pioche.estVide()) {
-            main.add(pioche.piocher());
+    public void piocher(Partie partie) throws UNOException {
+        Pioche pioche = partie.getPioche();
+
+        if(partie.getAJoueCeTour()){
+            throw new UNOException("lLe joueur a déja joué son tour, impossible de piocher une carte.");
         }
+
+        if (pioche.estVide()) {
+            throw new UNOException("La pioche est vide.");
+        }
+
+        Carte cartePiochee = pioche.piocher();
+        main.add(cartePiochee);
+
+        partie.setAJoueCeTour(true);
     }
 
-    public void poserCarte(Carte carte, Partie partie) throws Exception {
+
+    public void poserCarte(Carte carte, Partie partie) throws UNOException {
         Carte sommet = partie.getTas().sommet();
 
         if (!main.contains(carte)) {
-            throw new Exception("Le joueur ne possède pas cette carte.");
+            throw new UNOException("Le joueur ne possède pas cette carte.");
         }
 
         if (!carte.estJouableSur(sommet)) {
-            throw new Exception("Carte non jouable sur le tas.");
+            throw new UNOException("Carte non jouable sur le tas.");
         }
 
         main.remove(carte);
         partie.getTas().poserCarte(carte);
+
+        partie.setAJoueCeTour(true);
     }
 
     public int getNombreCartes() {

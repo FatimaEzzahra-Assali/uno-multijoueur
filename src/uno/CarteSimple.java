@@ -1,5 +1,7 @@
 package uno;
 
+import java.util.Objects;
+
 public class CarteSimple extends Carte {
     private int valeur;
 
@@ -26,4 +28,12 @@ public class CarteSimple extends Carte {
     public String toString() {
         return "CarteSimple [" + couleur + " " + valeur + "]";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CarteSimple that = (CarteSimple) o;
+        return valeur == that.valeur;
+    }
+
 }

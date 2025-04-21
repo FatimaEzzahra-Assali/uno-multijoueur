@@ -32,4 +32,9 @@ public abstract class Carte {
     public String toString() {
         return getClass().getSimpleName() + " [" + couleur + "]";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o) && (couleur == ((Carte)o).couleur);
+    }
 }
