@@ -48,4 +48,19 @@ public class Partie {
     public List<Joueur> getJoueurs() {
         return joueurs;
     }
+
+    //pour la punition le joueur pioche deux cartes puis passe son tour
+    public void punir(Joueur joueur){
+         for(int i=0; i<2;i++){
+            if(!pioche.estVide()){
+                joueur.ajouterCarte(pioche.piocher());
+            }
+        }
+         //ici si le joueur punis est le joueur couant on passe le tour sinon on fait pas appele à cette condition
+        //comme dans le cas de la puninition de bob lorsqu'il essaye de piocher hors son tour il pioche 2 (punition)mais on est toujours dans le tour d'alice
+        if(joueur.equals(getJoueurCourant())){
+            passerAuJoueurSuivant();
+            aJoueCeTour = false;
+        }
+    }
 }

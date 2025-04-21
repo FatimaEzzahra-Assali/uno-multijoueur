@@ -28,6 +28,10 @@ public class Joueur {
 
     public void piocher(Partie partie) throws UNOException {
         Pioche pioche = partie.getPioche();
+    //verifier que ce n'est pas le tour de bob pour le test punition sinon le test ne detectera pas l'exception
+        if (!partie.getJoueurCourant().equals(this)) {
+            throw new UNOException("Ce n'est pas ton tour !");
+        }
 
         if(partie.getAJoueCeTour()){
             throw new UNOException("lLe joueur a déja joué son tour, impossible de piocher une carte.");

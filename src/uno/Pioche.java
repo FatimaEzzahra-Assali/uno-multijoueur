@@ -26,4 +26,6 @@ public class Pioche {
     public int taille() {
         return cartes.size();
     }
+
+
 }
