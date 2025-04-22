@@ -41,6 +41,11 @@ public class Partie {
             punir(this.getJoueurCourant());
             throw new UNOException("Le joueur courant n'a pas dit Uno !");
         }
+
+        //Si le joueur fini son tour sans poser de carte, alors exception
+        if(!aJoueCeTour){
+            throw new UNOException("Le joueur ne peut pas finir son tour sans poser une carte.");
+        }
         getJoueurCourant().resetUno();
         passerAuJoueurSuivant();
         aJoueCeTour = false; // Réinitialiser pour le prochain joueur
