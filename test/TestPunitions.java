@@ -4,10 +4,9 @@ import uno.*;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Testpunitions {
+public class TestPunitions {
     private Partie partie;
     private Joueur alice, bob, charles;
 
@@ -52,12 +51,7 @@ public class Testpunitions {
         assertEquals(alice, partie.getJoueurCourant());
 
         Carte sixJaune = new CarteSimple(Couleur.JAUNE,6) ;
-        try{
-            alice.poserCarte(sixJaune,partie);
-        } catch (UNOException e) {
-            partie.punir(alice);
-        }
-
+        assertThrows(UNOException.class, () -> alice.poserCarte(sixJaune,partie));
 
         //apres la punition d'alice verifier que bob est le joueur courant
         assertEquals(bob, partie.getJoueurCourant());
@@ -80,11 +74,8 @@ public class Testpunitions {
         assertEquals(alice, partie.getJoueurCourant());
 
         //partie.setAJoueCeTour(true);
-        try{
-            bob.piocher(partie);
-        }catch(UNOException e){
-            partie.punir(bob);
-        }
+        //Bob pioche (ce n'est pas son tour)
+        assertThrows(UNOException.class, () -> bob.piocher(partie));
 
         //verifie qu'alice est toujours le joueur courant
         assertEquals(alice, partie.getJoueurCourant());

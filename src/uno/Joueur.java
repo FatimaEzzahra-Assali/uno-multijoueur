@@ -3,10 +3,11 @@ package uno;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Joueur {
+public class Joueur  {
     private String nom;
     private List<Carte> main;
     private boolean aDitUno;
+    private Partie partie;
 
     public Joueur(String nom) {
         this.nom = nom;
@@ -30,6 +31,7 @@ public class Joueur {
         Pioche pioche = partie.getPioche();
     //verifier que ce n'est pas le tour de bob pour le test punition sinon le test ne detectera pas l'exception
         if (!partie.getJoueurCourant().equals(this)) {
+            this.getPartie().punir(this);
             throw new UNOException("Ce n'est pas ton tour !");
         }
 
@@ -56,6 +58,8 @@ public class Joueur {
         }
 
         if (!carte.estJouableSur(sommet)) {
+            //Si le joueur pose une carte illegale, on la punit
+            this.getPartie().punir(this);
             throw new UNOException("Carte non jouable sur le tas.");
         }
 
@@ -69,7 +73,13 @@ public class Joueur {
         return main.size();
     }
 
-    public void direUno() {
+    public void direUno() throws UNOException {
+
+        //Si le joueur courant n'est pas this
+        if(!(this.equals(this.getPartie().getJoueurCourant()))){
+            this.getPartie().punir(this);
+            throw new UNOException("Le joueur dit Uno, mais il n'est pas son tour !");
+        }
         if (main.size() == 1) {
             aDitUno = true;
         }
@@ -81,6 +91,22 @@ public class Joueur {
 
     public void resetUno() {
         aDitUno = false;
+    }
+
+    public Partie getPartie() {
+        return partie;
+    }
+
+    public void setPartie(Partie partie) {
+        this.partie = partie;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Joueur joueur = (Joueur) o;
+        return nom.equals(joueur.nom);
     }
 
     @Override

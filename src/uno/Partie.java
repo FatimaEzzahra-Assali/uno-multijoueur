@@ -15,6 +15,10 @@ public class Partie {
         this.tas = tas;
         this.joueurCourantIndex = 0; // commence par le premier joueur
         this.aJoueCeTour = false;
+
+        for (Joueur joueur : joueurs) {
+            joueur.setPartie(this);
+        }
     }
 
     public Joueur getJoueurCourant() {
@@ -32,6 +36,11 @@ public class Partie {
     }
 
     public void finirTour()throws UNOException{
+        //Si le joueur tente de passer son tour sans dire Uno,
+        if(getJoueurCourant().getNombreCartes() == 1 && !getJoueurCourant().aDitUno()){
+            punir(this.getJoueurCourant());
+            throw new UNOException("Le joueur courant n'a pas dit Uno !");
+        }
         getJoueurCourant().resetUno();
         passerAuJoueurSuivant();
         aJoueCeTour = false; // Réinitialiser pour le prochain joueur
@@ -56,8 +65,8 @@ public class Partie {
                 joueur.ajouterCarte(pioche.piocher());
             }
         }
-         //ici si le joueur punis est le joueur couant on passe le tour sinon on fait pas appele à cette condition
-        //comme dans le cas de la puninition de bob lorsqu'il essaye de piocher hors son tour il pioche 2 (punition)mais on est toujours dans le tour d'alice
+         //ici si le joueur puni est le joueur courant, on passe le tour sinon on ne fait pas appel à cette condition
+        //comme dans le cas de la punition de bob lorsqu'il essaye de piocher hors son tour il pioche 2 (punition)mais on est toujours dans le tour d'alice
         if(joueur.equals(getJoueurCourant())){
             passerAuJoueurSuivant();
             aJoueCeTour = false;

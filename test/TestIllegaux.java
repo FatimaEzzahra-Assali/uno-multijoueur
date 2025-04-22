@@ -77,7 +77,7 @@ public class TestIllegaux {
         assertEquals(2, charles.getNombreCartes());
 
         //Charles pose le « 7(9????) Bleu » (Carte légale mais il a déjà posé...)
-        assertThrows(UNOException.class, () -> charles.poserCarte((CarteSimple) neufBleu, partie),"ICII");
+        assertThrows(UNOException.class, () -> charles.poserCarte((CarteSimple) neufBleu, partie));
 
         //Vérifier dans le catch approprié que Charles possède toujours 2 cartes dont le « 2 Bleu »
         assertEquals(2, charles.getNombreCartes());
