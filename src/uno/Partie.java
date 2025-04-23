@@ -8,6 +8,8 @@ public class Partie {
     private boolean aJoueCeTour;
     private Pioche pioche;
     private Tas tas;
+    private int nbCartesAPiocher =0; //pour compter le nombre de cartes à piocher dues aux +2 enchainés
+    private boolean actionPlus2Actif = false; //indique qu'un enchainement de +2 est en cours. le joueur doit jouer un autre +2 ou encaisser
 
     public Partie(List<Joueur> joueurs, Pioche pioche, Tas tas) {
         this.joueurs = joueurs;
@@ -43,13 +45,18 @@ public class Partie {
         }
 
         //Si le joueur fini son tour sans poser de carte, alors exception
-        if(!aJoueCeTour){
+        /*if(!aJoueCeTour){
             throw new UNOException("Le joueur ne peut pas finir son tour sans poser une carte.");
-        }
+        }*/
         getJoueurCourant().resetUno();
+
         passerAuJoueurSuivant();
         aJoueCeTour = false; // Réinitialiser pour le prochain joueur
+
+       // appliquerEffetsDebutTour(); // <--- Ajout important ici
+
     }
+
 
     public Pioche getPioche() {
         return pioche;
@@ -61,6 +68,51 @@ public class Partie {
 
     public List<Joueur> getJoueurs() {
         return joueurs;
+    }
+
+    public int getNbCartesAPiocher(){
+        return nbCartesAPiocher;
+    }
+
+    public void ajouterNbCartesAPiocher(int n){
+        nbCartesAPiocher += n;
+    }
+
+    public boolean isActionPlus2Actif(){
+        return actionPlus2Actif;
+    }
+
+    public void setActionPlus2Actif(boolean actif){
+        actionPlus2Actif = actif;
+    }
+
+    public void resetActionPlus2() {
+        nbCartesAPiocher = 0;
+        actionPlus2Actif = false;
+    }
+
+    //le joueur pioche et passe son tour
+    public void appliquerEffetsDebutTour() {
+        // D'autres effets spéciaux à appliquer ici s
+        Joueur joueur = getJoueurCourant();
+
+        if (actionPlus2Actif) {
+            // Si le joueur n’a pas de CartePlus2 en main, il doit encaisser
+            boolean aCartePlus2 = joueur.possedeCartePlus2();
+
+            if (!aCartePlus2) {
+                for (int i = 0; i < nbCartesAPiocher; i++) {
+                    if (!pioche.estVide()) {
+                        joueur.ajouterCarte(pioche.piocher());
+                    }
+
+                }
+                resetActionPlus2();
+                //passerAuJoueurSuivant();
+                aJoueCeTour = false;
+
+            }
+        }
     }
 
     //pour la punition le joueur pioche deux cartes puis passe son tour
