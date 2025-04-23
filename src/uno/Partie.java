@@ -109,7 +109,7 @@ public class Partie {
                 }
                 resetActionPlus2();
                 //passerAuJoueurSuivant();
-                aJoueCeTour = false;
+                aJoueCeTour = true;
 
             }
         }
