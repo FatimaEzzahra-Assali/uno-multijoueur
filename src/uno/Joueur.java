@@ -65,6 +65,8 @@ public class Joueur  {
 
         main.remove(carte);
         partie.getTas().poserCarte(carte);
+        //On appliquer l'effet de la carte
+        carte.appliquerEffet(partie);
 
         partie.setAJoueCeTour(true);
     }
