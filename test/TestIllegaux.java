@@ -35,7 +35,6 @@ public class TestIllegaux {
         Tas tas = new Tas();
         tas.poserCarte(new CarteSimple(Couleur.VERT, 8)); // carte initiale
 
-        // Pioche (non utilisée ici mais nécessaire)
         Pioche pioche = new Pioche(List.of(
                 new CarteSimple(Couleur.JAUNE, 6),
                 new CarteSimple(Couleur.ROUGE, 4),
