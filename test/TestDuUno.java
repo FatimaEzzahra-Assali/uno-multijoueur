@@ -92,6 +92,7 @@ public class TestDuUno {
        assertThrows(UNOException.class, () -> bob.direUno());
        //Dans le catch approprié :
        //Punir Bob
+       partie.punir(bob);
        //Vérifier que Bob a maintenant 4 cartes
        assertEquals(4, bob.getNombreCartes());
        //Vérifier qu’Alice est toujours le joueur courant Vérifier que la carte au sommet du tas est le « 8 Vert »

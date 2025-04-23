@@ -8,7 +8,7 @@ public class Partie {
     private boolean aJoueCeTour;
     private Pioche pioche;
     private Tas tas;
-    private int nbCartesAPiocher =0; //pour compter le nombre de cartes à piocher dues aux +2 enchainés
+    private int nbCartesAPiocher = 0; //pour compter le nombre de cartes à piocher dues aux +2 enchainés
     private boolean actionPlus2Actif = false; //indique qu'un enchainement de +2 est en cours. le joueur doit jouer un autre +2 ou encaisser
 
     public Partie(List<Joueur> joueurs, Pioche pioche, Tas tas) {
@@ -45,9 +45,9 @@ public class Partie {
         }
 
         //Si le joueur fini son tour sans poser de carte, alors exception
-        /*if(!aJoueCeTour){
+        if(!aJoueCeTour){
             throw new UNOException("Le joueur ne peut pas finir son tour sans poser une carte.");
-        }*/
+        }
         getJoueurCourant().resetUno();
 
         passerAuJoueurSuivant();

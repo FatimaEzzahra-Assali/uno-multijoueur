@@ -4,15 +4,16 @@ import uno.*;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestPunitions {
     private Partie partie;
     private Joueur alice, bob, charles;
 
     @BeforeEach
-    //Pour	chacun	des	tests	de	cette	partie,	il	faut	réinitialiser	la	partie	pour	se	retrouver	dans
-    //les	conditions	des	tests	précédent
+        //Pour	chacun	des	tests	de	cette	partie,	il	faut	réinitialiser	la	partie	pour	se	retrouver	dans
+        //les	conditions	des	tests	précédent
     void setup(){
         alice = new Joueur("Alice");
         alice.ajouterCarte(new CarteSimple(Couleur.VERT, 2));   // à jouer
@@ -51,7 +52,12 @@ public class TestPunitions {
         assertEquals(alice, partie.getJoueurCourant());
 
         Carte sixJaune = new CarteSimple(Couleur.JAUNE,6) ;
-        assertThrows(UNOException.class, () -> alice.poserCarte(sixJaune,partie));
+        try{
+            alice.poserCarte(sixJaune,partie);
+        } catch (UNOException e) {
+            partie.punir(alice);
+        }
+
 
         //apres la punition d'alice verifier que bob est le joueur courant
         assertEquals(bob, partie.getJoueurCourant());
@@ -74,8 +80,11 @@ public class TestPunitions {
         assertEquals(alice, partie.getJoueurCourant());
 
         //partie.setAJoueCeTour(true);
-        //Bob pioche (ce n'est pas son tour)
-        assertThrows(UNOException.class, () -> bob.piocher(partie));
+        try{
+            bob.piocher(partie);
+        }catch(UNOException e){
+            partie.punir(bob);
+        }
 
         //verifie qu'alice est toujours le joueur courant
         assertEquals(alice, partie.getJoueurCourant());

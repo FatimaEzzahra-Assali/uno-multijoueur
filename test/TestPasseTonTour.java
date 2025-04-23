@@ -5,6 +5,7 @@ import uno.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestPasseTonTour {
 
@@ -90,6 +91,7 @@ public class TestPasseTonTour {
         assertEquals(alice, partie.getJoueurCourant());
         //Alice pose le « Passe ton tout rouge »
         CartePasseTonTour passeTonTourRouge = (CartePasseTonTour) alice.getMain().get(0);
+        alice.poserCarte(passeTonTourRouge, partie);
         //Alice finit son tour
         partie.finirTour();
 
@@ -99,9 +101,10 @@ public class TestPasseTonTour {
         assertEquals(3, charles.getNombreCartes());
         // Charles pose le « 1 Bleu »
         CarteSimple unBleu = (CarteSimple) charles.getMain().get(0);
-        charles.poserCarte(unBleu, partie);
+        assertThrows(UNOException.class, () -> charles.poserCarte(unBleu, partie) );
         //Charles finit son tour
-        partie.finirTour();
+        assertThrows(UNOException.class, () -> partie.finirTour());
         //Vérifier dans l’exception appropriée que Charles a toujours 3 cartes
+        assertEquals(3,charles.getNombreCartes());
     }
 }
