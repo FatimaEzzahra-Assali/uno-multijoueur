@@ -31,7 +31,7 @@ public class Joueur  {
         Pioche pioche = partie.getPioche();
     //verifier que ce n'est pas le tour de bob pour le test punition sinon le test ne detectera pas l'exception
         if (!partie.getJoueurCourant().equals(this)) {
-            this.getPartie().punir(this);
+           // this.getPartie().punir(this);
             throw new UNOException("Ce n'est pas ton tour !");
         }
 
@@ -59,19 +59,20 @@ public class Joueur  {
 
         if (!carte.estJouableSur(sommet)) {
             //Si le joueur pose une carte illegale, on la punit
-            this.getPartie().punir(this);
+           // this.getPartie().punir(this);
             throw new UNOException("Carte non jouable sur le tas.");
         }
-
+        /*
         if (carte.estPlus2()) {
             partie.setActionPlus2Actif(true);
             partie.ajouterNbCartesAPiocher(2);
             //partie.passerAuJoueurSuivant();
         }
+        */
         main.remove(carte);
         partie.getTas().poserCarte(carte);
         //On appliquer l'effet de la carte
-        //carte.appliquerEffet(partie);
+        carte.appliquerEffet(partie);
 
         partie.setAJoueCeTour(true);
 
@@ -86,7 +87,7 @@ public class Joueur  {
 
         //Si le joueur courant n'est pas this
         if(!(this.equals(this.getPartie().getJoueurCourant()))){
-            this.getPartie().punir(this);
+            //this.getPartie().punir(this);
             throw new UNOException("Le joueur dit Uno, mais il n'est pas son tour !");
         }
         if (main.size() == 1) {
