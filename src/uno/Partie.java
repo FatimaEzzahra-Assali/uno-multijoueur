@@ -45,9 +45,9 @@ public class Partie {
         }
 
         //Si le joueur fini son tour sans poser de carte, alors exception
-        if(!aJoueCeTour){
+        /*if(!aJoueCeTour){
             throw new UNOException("Le joueur ne peut pas finir son tour sans poser une carte.");
-        }
+        }*/
         getJoueurCourant().resetUno();
 
         passerAuJoueurSuivant();
