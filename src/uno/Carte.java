@@ -28,6 +28,10 @@ public abstract class Carte {
         // Par défaut, aucun effet
     }
 
+    public boolean estPlus2() {
+        return this instanceof CartePlus2;
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + " [" + couleur + "]";

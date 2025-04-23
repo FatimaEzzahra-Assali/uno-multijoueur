@@ -63,10 +63,17 @@ public class Joueur  {
             throw new UNOException("Carte non jouable sur le tas.");
         }
 
+        if (carte.estPlus2()) {
+            partie.setActionPlus2Actif(true);
+            partie.ajouterNbCartesAPiocher(2);
+            //partie.passerAuJoueurSuivant();
+        }
         main.remove(carte);
         partie.getTas().poserCarte(carte);
 
         partie.setAJoueCeTour(true);
+
+
     }
 
     public int getNombreCartes() {
@@ -112,5 +119,14 @@ public class Joueur  {
     @Override
     public String toString() {
         return nom + " (" + main.size() + " cartes)";
+    }
+
+    public boolean possedeCartePlus2() {
+        for (Carte c : main) {
+            if (c instanceof CartePlus2) {
+                return true;
+            }
+        }
+        return false;
     }
 }
