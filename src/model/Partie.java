@@ -1,4 +1,4 @@
-package uno;
+package model;
 
 import java.util.List;
 
@@ -22,6 +22,31 @@ public class Partie {
             joueur.setPartie(this);
         }
     }
+
+    public void initialiserPartie() {
+        // On mélange la pioche
+        pioche.melanger();  // optionnel si déjà fait dans Pioche()
+
+        // On distribue 7 cartes à chaque joueur
+        for (Joueur j : joueurs) {
+            for (int i = 0; i < 7; i++) {
+                j.ajouterCarte(pioche.piocher());
+            }
+        }
+
+        // On pose une première carte sur le tas
+        Carte premiere = pioche.piocher();
+
+        // Si la 1ère carte n'est pas une carte simple, alors on remet dans la pioche et on re-pioche
+        while (!(premiere instanceof CarteSimple)) {
+            pioche.remettreCarte(premiere);
+            pioche.melanger();
+            premiere = pioche.piocher();
+        }
+
+        tas.poserCarte(premiere);
+    }
+
 
     public Joueur getJoueurCourant() {
         return joueurs.get(joueurCourantIndex);
@@ -108,8 +133,8 @@ public class Partie {
 
                 }
                 resetActionPlus2();
+                //aJoueCeTour = true;
                 //passerAuJoueurSuivant();
-                aJoueCeTour = true;
 
             }
         }

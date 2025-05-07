@@ -1,9 +1,9 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uno.Carte;
-import uno.CarteSimple;
-import uno.Couleur;
-import uno.*;
+import model.Carte;
+import model.CarteSimple;
+import model.Couleur;
+import model.*;
 
 import java.util.List;
 

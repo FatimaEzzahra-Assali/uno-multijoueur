@@ -1,8 +1,7 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uno.*;
+import model.*;
 
-import javax.swing.plaf.basic.BasicListUI;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

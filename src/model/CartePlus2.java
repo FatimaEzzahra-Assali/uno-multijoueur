@@ -1,4 +1,4 @@
-package uno;
+package model;
 
 public class CartePlus2 extends Carte {
 
@@ -26,8 +26,11 @@ public class CartePlus2 extends Carte {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         CartePlus2 that = (CartePlus2) o;
-        return couleur == that.couleur;
+        return this.couleur == that.couleur;
     }
+
 }

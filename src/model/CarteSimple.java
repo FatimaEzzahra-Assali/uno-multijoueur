@@ -1,6 +1,4 @@
-package uno;
-
-import java.util.Objects;
+package model;
 
 public class CarteSimple extends Carte {
     private int valeur;
@@ -31,9 +29,12 @@ public class CarteSimple extends Carte {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         CarteSimple that = (CarteSimple) o;
-        return valeur == that.valeur;
+        return this.couleur == that.couleur && this.valeur == that.valeur;
     }
+
 
 }

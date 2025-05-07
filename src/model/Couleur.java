@@ -1,4 +1,4 @@
-package uno;
+package model;
 
 
 public enum Couleur {

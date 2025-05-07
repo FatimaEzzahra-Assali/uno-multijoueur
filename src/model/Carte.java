@@ -1,4 +1,4 @@
-package uno;
+package model;
 
 public abstract class Carte {
     protected Couleur couleur;
@@ -37,8 +37,4 @@ public abstract class Carte {
         return getClass().getSimpleName() + " [" + couleur + "]";
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o) && (couleur == ((Carte)o).couleur);
-    }
 }

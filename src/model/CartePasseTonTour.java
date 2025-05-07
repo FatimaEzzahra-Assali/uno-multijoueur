@@ -1,7 +1,6 @@
-package uno;
+package model;
 
 public class CartePasseTonTour extends Carte {
-
     public CartePasseTonTour(Couleur couleur) {
         super(couleur);
     }
@@ -25,8 +24,11 @@ public class CartePasseTonTour extends Carte {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         CartePasseTonTour that = (CartePasseTonTour) o;
-        return couleur == that.couleur;
+        return this.couleur == that.couleur;
     }
+
 }

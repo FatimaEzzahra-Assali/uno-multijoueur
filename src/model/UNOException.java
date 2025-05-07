@@ -1,4 +1,4 @@
-package uno;
+package model;
 
 public class UNOException extends RuntimeException {
     public UNOException(String message) {

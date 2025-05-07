@@ -1,4 +1,4 @@
-package uno;
+package model;
 
 import java.util.Stack;
 

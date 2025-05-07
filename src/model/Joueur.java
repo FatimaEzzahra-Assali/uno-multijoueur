@@ -1,4 +1,4 @@
-package uno;
+package model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +27,45 @@ public class Joueur  {
         main.add(carte);
     }
 
-    public void piocher(Partie partie) throws UNOException {
+    /*
+    * Méthode pour chercher une carte selon une couleur et la valeur.
+    * Nous avons besoin de ce type de codage pour que lorsque le joueur va jouer une carte spéciale,
+    * l'utilisateur va renvoyer la valeur 10 pour définir une carte CartePlus2, et 11 pour une CartePasseTonTour
+    * */
+    public Carte trouverCarteDansMain(Couleur couleur, int valeur) throws UNOException {
+        for (Carte c : main) {
+            if (c instanceof CarteSimple simple) {
+                if (simple.getCouleur() == couleur && simple.getValeur() == valeur) {
+                    return c;
+                }
+            }
+
+            if (c instanceof CartePlus2 plus2) {
+                if (plus2.getCouleur() == couleur && valeur == 10) {
+                    return c;
+                }
+            }
+
+            if (c instanceof CartePasseTonTour passe) {
+                if (passe.getCouleur() == couleur && valeur == 11) {
+                    return c;
+                }
+            }
+        }
+
+        throw new UNOException("Tu n'as pas cette carte en main !");
+    }
+
+    public Carte piocher(Partie partie) throws UNOException {
         Pioche pioche = partie.getPioche();
-    //verifier que ce n'est pas le tour de bob pour le test punition sinon le test ne detectera pas l'exception
+
         if (!partie.getJoueurCourant().equals(this)) {
            // this.getPartie().punir(this);
             throw new UNOException("Ce n'est pas ton tour !");
         }
 
         if(partie.getAJoueCeTour()){
-            throw new UNOException("lLe joueur a déja joué son tour, impossible de piocher une carte.");
+            throw new UNOException("Le joueur a déja joué son tour, impossible de piocher une carte.");
         }
 
         if (pioche.estVide()) {
@@ -47,6 +76,8 @@ public class Joueur  {
         main.add(cartePiochee);
 
         partie.setAJoueCeTour(true);
+        partie.finirTour();
+        return cartePiochee;
     }
 
 
