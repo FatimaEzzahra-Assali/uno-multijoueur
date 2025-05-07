@@ -43,7 +43,7 @@ public class AppClientUno {
                 if (parts.length == 3) {
                     client.jouerCarte(parts[1], parts[2]);
                 } else {
-                    System.out.println("⚠️ Utilise : carte <couleur> <valeur>");
+                    System.out.println(" Utilise : carte <couleur> <valeur>");
                 }
             } else if (commande.equals("piocher")) {
                 client.piocher();
@@ -56,6 +56,6 @@ public class AppClientUno {
             }
         }
 
-        System.out.println("👋 Au revoir !");
+        System.out.println(" Au revoir !");
     }
 }

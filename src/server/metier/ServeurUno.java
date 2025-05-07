@@ -152,7 +152,7 @@ public class ServeurUno {
             if (joueur.getMain().isEmpty()) {
                 int scoreGagnant = calculerScoreGagnant(joueur); //on aura besion du score pour la gestion de la base de données
                 envoyerATous("@INFO " + joueur.getNom() + "à gagné et a obtenu un score de " + scoreGagnant + " !");
-                finirPartie(); //on fini la partie (voir la fonction plus bas)
+                // A VOIR finirPartie(); //on fini la partie (voir la fonction plus bas)
                 return;
             }
             partie.finirTour();
@@ -226,7 +226,7 @@ public class ServeurUno {
         int score = 0;
         for (ConnexionJoueurUno c : joueursConnectes) {
             Joueur j = c.getJoueur();
-            //il faut bien évidement sauterla main du joueur qui a gagné
+            //il faut bien évidement sauter la main du joueur qui a gagné
             if (!j.equals(joueur)) {
                 for (Carte carte : j.getMain()) {
                     if (carte instanceof CarteSimple simple) {

@@ -25,7 +25,7 @@ public class Partie {
 
     public void initialiserPartie() {
         // On mélange la pioche
-        pioche.melanger();  // optionnel si déjà fait dans Pioche()
+        pioche.melanger();
 
         // On distribue 7 cartes à chaque joueur
         for (Joueur j : joueurs) {
