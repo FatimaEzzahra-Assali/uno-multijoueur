@@ -36,5 +36,9 @@ public class CarteSimple extends Carte {
         return this.couleur == that.couleur && this.valeur == that.valeur;
     }
 
+    @Override
+    public String toCode() {
+        return valeur + ";" + couleur;
+    }
 
 }

@@ -31,4 +31,9 @@ public class CartePasseTonTour extends Carte {
         return this.couleur == that.couleur;
     }
 
+    @Override
+    public String toCode() {
+        return "PTT" + ";" + couleur;
+    }
+
 }

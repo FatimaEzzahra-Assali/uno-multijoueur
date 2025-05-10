@@ -67,48 +67,22 @@ public class ServeurUno {
 
     //******************** fin des méthodes standard ************************
 
-    /*Gestion du protocole @CONNEXION
-    * Cette fonction permet à un joueur de se connecter au serveur et de lui donner un pseudo
-    * @param connexion : la connexion du joueur qui vient de se connecter.
-    * @param pseudo : le pseudo du joueur qui vient de se connecter.
-    * */
-    public void ajouterJoueur(ConnexionJoueurUno connexion, String pseudo) {
-
+    public ConnexionJoueurUno getConnexionJoueur(String pseudo) throws ServeurUnoException {
         for (ConnexionJoueurUno c : joueursConnectes) {
             if (pseudo.equalsIgnoreCase(c.getPseudo())) {
-                connexion.envoyer("@ERREUR Ce pseudo est déjà utilisé.");
-                return;
+                return c;
             }
         }
-
-        if (partieEnCours) {
-            connexion.envoyer("@ERREUR La partie a déjà commencé !");
-            return;
-        }
-
-        Joueur joueur = new Joueur(pseudo);
-        connexion.setJoueur(joueur);
-        connexion.setPseudo(pseudo);
-
-        joueursConnectes.add(connexion);
-
-        // Informer tous les joueurs
-        envoyerATous("@REJOINDRE " + pseudo);
+        throw new ServeurUnoException("l'utilisateur "+ pseudo +" n'existe pas.");
     }
 
     /*
      * Un joueur va pouvoir lancer une partie a condition qu'il y a au moins deux joueurs connectés au serveur
-     * @param connexion : la connexion du joueur qui vient de se connecter.
-     * @param pseudo : le pseudo du joueur qui vient de se connecter.
-     * */
+     * et qu'il est le premier à s'être connecté au serveur.
+     */
     public void lancerPartie() {
-        if (partieEnCours) return;
-        if (joueursConnectes.size() < 2) {
-            envoyerATous("@ERREUR Il faut au moins 2 joueurs !");
-            return;
-        }
+        // Pour chaque connexion, on récupère le joueur associé
 
-        // POur chaque connexion, on récupère le joueur associé
         List<Joueur> joueurs = new ArrayList<>();
         for (ConnexionJoueurUno connexion : joueursConnectes) {
             joueurs.add(connexion.getJoueur());
@@ -118,26 +92,15 @@ public class ServeurUno {
         partie = new Partie(joueurs, new Pioche(), new Tas());
 
         partie.initialiserPartie();
-        partieEnCours = true;
-        envoyerATous("@COMMENCER");
-        envoyerATous("@INFO Il y a " + joueursConnectes.size() + " joueurs connectés.");
+        setPartieEnCours(true);
         tourSuivant();
     }
 
-    /* Gestion du protocole @CARTE
-    * @param connexion : la connexion du joueur qui vient de se connecter.
-    * @param couleur : la couleur de la carte.
-    * @param valeur : la valeur de la carte.
-    * la valeur 10 : carte cartePlus2
-    * la valeur 11 : carte passeTonTour
-    * */
-    public void traiterCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
-        //???
-        if (!partieEnCours) {
-            connexion.envoyer("@ERREUR La partie n’a pas encore commencé.");
+    public void jouerCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
+        if (!isPartieEnCours()) {
+            connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
             return;
         }
-
         Joueur joueur = connexion.getJoueur();
         try {
             Couleur coul = Couleur.valueOf(couleur);
@@ -145,61 +108,95 @@ public class ServeurUno {
             Carte carteAJouer = joueur.trouverCarteDansMain(coul, val); //on cherche la carte dans la main du joueur
 
             joueur.poserCarte(carteAJouer, partie);
-            envoyerATous("@INFO " + joueur.getNom() + " a joué " + couleur + " " + valeur);
+            envoyerTas(carteAJouer);
+            connexion.envoyerCarteJouee(carteAJouer);
+            //on envoie la main du joueur à chaque fois qu'il joue une carte
+            connexion.envoyerMessageMain();
+            connexion.envoyerListeJoueurs(getJoueursConnectes());
+            //envoyerATous("@INFO " + joueur.getNom() + " a joué " + couleur + " " + valeur);
 
             //si le joueur n'a plus de carte après avoir posé sa dernière carte, il a gagné
             //alors, FIN DE PARTIE
             if (joueur.getMain().isEmpty()) {
                 int scoreGagnant = calculerScoreGagnant(joueur); //on aura besion du score pour la gestion de la base de données
-                envoyerATous("@INFO " + joueur.getNom() + "à gagné et a obtenu un score de " + scoreGagnant + " !");
+                connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
                 // A VOIR finirPartie(); //on fini la partie (voir la fonction plus bas)
                 return;
             }
+            //Ces 2 là, je les ai enlevés, c'est au joueur de faire la demande de passer au tour suivant (et c'est là qu'on gère le uno?)
+            //partie.finirTour();
+            //tourSuivant();
+        } catch (UNOException e) {
+            connexion.envoyerMessageErreur(e.getMessage());
+        } catch (Exception e) {
+            connexion.envoyerMessageErreur("Carte invalide");
+        }
+
+    }
+
+    public void encaisse(ConnexionJoueurUno connexion) {
+        Joueur joueur = connexion.getJoueur();
+
+        if (!partieEnCours) {
+            connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
+            return;
+        }
+
+        if (!joueur.equals(partie.getJoueurCourant())) {
+            connexion.envoyerMessageErreur("Ce n’est pas votre tour.");
+            return;
+        }
+
+        if (!partie.isActionPlus2Actif()) {
+            connexion.envoyerMessageErreur("Il n’y a aucun +2 à encaisser.");
+            return;
+        }
+
+        int nb = partie.getNbCartesAPiocher();
+        Pioche pioche = partie.getPioche();
+
+        for (int i = 0; i < nb; i++) {
+            if (!pioche.estVide()) {
+                joueur.ajouterCarte(pioche.piocher());
+            }
+        }
+
+        connexion.envoyerMessageMain(); // on renvoie la main mise à jour
+        partie.resetActionPlus2();  // annul du cumul des cartes à encaisser
+        partie.setAJoueCeTour(true);
+
+        try {
             partie.finirTour();
             tourSuivant();
         } catch (UNOException e) {
-            connexion.envoyer("@ERREUR " + e.getMessage());
-        } catch (Exception e) {
-            connexion.envoyer("@ERREUR Carte invalide");
+            connexion.envoyerMessageErreur(e.getMessage());
         }
-
     }
 
-    /*Gestion du protocole @PIOCHER
-    * @param connexion : la connexion du joueur qui vient de se connecter.
-    * */
-    public void traiterPioche(ConnexionJoueurUno connexion) {
+
+    public void finirTour(ConnexionJoueurUno connexion) {
         Joueur joueur = connexion.getJoueur();
+
+        if (!partieEnCours) {
+            connexion.envoyerMessageErreur("La partie n’a pas commencé.");
+            return;
+        }
+
+        if (!joueur.equals(partie.getJoueurCourant())) {
+            connexion.envoyerMessageErreur("Ce n’est pas ton tour.");
+            return;
+        }
         try {
-            Carte cartePiochee = joueur.piocher(partie);
-            connexion.envoyer("@INFO Tu as pioché la carte : " + cartePiochee.toString());
-            //partie.finirTour();
-            tourSuivant();
+            partie.finirTour();
+            connexion.envoyerMessageFinTour();
         } catch (UNOException e) {
-            connexion.envoyer("@ERREUR " + e.getMessage());
+            connexion.envoyerMessageErreur(e.getMessage());
         }
 
     }
 
-    /*Gestion du protocole @UNO
-    * @param connexion : la connexion du joueur qui vient de se connecter
-    * */
-    public void traiterUno(ConnexionJoueurUno connexion) {
-        Joueur joueur = connexion.getJoueur();
-        try {
-            joueur.direUno();
-            envoyerATous("@INFO " + joueur.getNom() + " a dit UNO !");
-
-        } catch (UNOException e) {
-            connexion.envoyer("@ERREUR " + e.getMessage());
-        }
-    }
-
-
-    /* Gestion du protocole @FIN
-    * @param connexion : la connexion du joueur qui vient de se connecter.
-    */
     private void tourSuivant() {
+        partie.finirTour();
         Joueur joueur = partie.getJoueurCourant();
         envoyerATous("@INFO C’est au tour de " + joueur.getNom() + ".");
 
@@ -221,6 +218,48 @@ public class ServeurUno {
             joueur.envoyer(message);
         }
     }
+
+    public void envoyerTas(Carte carte){
+        //on envoie le message a tout le monde
+        for (ConnexionJoueurUno joueur : joueursConnectes) {
+            joueur.envoyerMessageTas(carte);
+        }
+    }
+
+    public void messagePublic(ConnexionJoueurUno emetteur, String message) {
+        // On remplace les mots tabous du message
+        for (String mot : motsCensures) {
+            message = message.replace(mot, censure);
+        }
+        // Et on parcours la liste des utilisateurs pour leur envoyer le message à chacun (sauf à soi-même)
+        for (ConnexionJoueurUno c : joueursConnectes) {
+            if (c.equals(emetteur))
+                continue;
+
+            c.envoyerMessagePublic(emetteur, message);
+        }
+    }
+
+    public void messagePrive(ConnexionJoueurUno emetteur, String pseudoDestination, String message){
+        ConnexionJoueurUno dest = getConnexionJoueur(pseudoDestination);
+
+        dest.envoyerMessagePrive(emetteur, message);
+    }
+
+    public ArrayList<String> motsCensures = new ArrayList<>();
+    public String censure = "@#$?!";
+
+    private void initCensure() {
+        motsCensures.add("BAYROU");
+        motsCensures.add("MACRON");
+        motsCensures.add("LE PEN");
+        motsCensures.add("MELENCHON");
+        motsCensures.add("RETAILLEAU");
+        motsCensures.add("FAURE");
+        motsCensures.add("TONDELLIER");
+        motsCensures.add("ROUSSEL");
+    }
+
 
     public int calculerScoreGagnant(Joueur joueur) {
         int score = 0;

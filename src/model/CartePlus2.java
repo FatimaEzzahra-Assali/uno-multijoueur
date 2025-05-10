@@ -33,4 +33,8 @@ public class CartePlus2 extends Carte {
         return this.couleur == that.couleur;
     }
 
+    @Override
+    public String toCode() {
+        return "+2;" + couleur;
+    }
 }

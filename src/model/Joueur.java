@@ -76,7 +76,8 @@ public class Joueur  {
         main.add(cartePiochee);
 
         partie.setAJoueCeTour(true);
-        partie.finirTour();
+        // LE JOUEUR DOIT FINIR LE TOUR MANUELLEMENT ??
+        //partie.finirTour();
         return cartePiochee;
     }
 

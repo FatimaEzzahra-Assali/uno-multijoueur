@@ -37,4 +37,5 @@ public abstract class Carte {
         return getClass().getSimpleName() + " [" + couleur + "]";
     }
 
+    public abstract String toCode();
 }

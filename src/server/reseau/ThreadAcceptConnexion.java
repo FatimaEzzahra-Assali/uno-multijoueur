@@ -27,7 +27,8 @@ public class ThreadAcceptConnexion extends Thread {
             while(true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Connexion !");
-                new ConnexionJoueurUno(socket, serveur);
+                ConnexionJoueurUno connexion = new ConnexionJoueurUno(socket, serveur);
+                serveur.add(connexion);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -133,9 +133,8 @@ public class Partie {
 
                 }
                 resetActionPlus2();
-                //aJoueCeTour = true;
+                aJoueCeTour = true;
                 //passerAuJoueurSuivant();
-
             }
         }
     }
