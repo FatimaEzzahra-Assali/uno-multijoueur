@@ -218,9 +218,11 @@ public class ConnexionJoueurUno {
         try{
             this.serveur.getConnexionJoueur(mots[1]);
             this.envoyerMessageErreur("Ce pseudo existe déja.");
+
         }catch(ServeurUnoException e){
             this.setPseudo(mots[1]);
-            this.serveur.messagePublic(this, "s'est connecté au serveur.");
+            this.setJoueur(new Joueur(mots[1]));
+            envoyerMessageInfo(this.getPseudo() + " s'est connecté au serveur.");
         }
     }
 
@@ -241,9 +243,10 @@ public class ConnexionJoueurUno {
                 envoyerMessageErreur("Pour lancer une partie, vous devez vous connecter en premier.");
                 return;
             }
-            serveur.lancerPartie();
-            envoyer("@DEMARRER" + this.getPseudo() + "à lancé une partie.");
+            serveur.envoyerATous("@DEMARRER " + this.getPseudo() + " à lancé une partie.");
             envoyerListeJoueurs(serveur.getJoueursConnectes());
+            serveur.lancerPartie();
+            envoyerTas();
     }
 
     private void traiterTO_ALL(String message) {
@@ -276,6 +279,7 @@ public class ConnexionJoueurUno {
         } catch (UNOException e) {
             envoyerMessageErreur(e.getMessage());
         }
+        envoyerMessageMain();
 
     }
 
@@ -316,7 +320,7 @@ public class ConnexionJoueurUno {
             return;
         }
         String message = "@TAS " + carte.getCouleur() + " " + carte.toString();
-        envoyer(message);
+        serveur.envoyerATous(message);
     }
 
     public void fermerConnexion() {
@@ -329,7 +333,6 @@ public class ConnexionJoueurUno {
         }
         threadConnexion.fin();
     }
-
 
 
     //*************** ENCODAGE DES MESSAGES (BAS NIVEAU) ****************
@@ -359,7 +362,7 @@ public class ConnexionJoueurUno {
 
     public void envoyerMessagePrive(ConnexionJoueurUno emetteur, String message) {envoyer("@MP_FROM " + emetteur.getPseudo() + " " + message);}
     public void envoyerCarteJouee(Carte carte) {
-        envoyer("@CARTEJOUEE " + carte.getCouleur() + " " + carte.toCode());
+        envoyer("@CARTEJOUEE " + carte.toCode());
     }
     public void envoyerMessageInfo(String texte) {
         envoyer("@INFO " + texte);
@@ -369,15 +372,13 @@ public class ConnexionJoueurUno {
     public void envoyerMessageUno(){envoyer("@UNO "+ this.getPseudo() + " a dit UNO !");}
 
     public void envoyerMessageVictoire(ServeurUno serveur, Joueur joueurVictoire, int score) {
-
         for (ConnexionJoueurUno c : serveur.getJoueursConnectes()) {
             c.envoyer("@VICTOIRE" + joueurVictoire.getNom() + "à gagné la partie et à obtenu un score de : " + score + " points !");
         }
-
     }
-    public void envoyerMessageTas(Carte carte) {
-        envoyer("@TAS " + carte.toCode());
-    }
+    //public void envoyerMessageTas(Carte carte) {
+    //    envoyer("@TAS " + carte.toCode());
+    //}
 
     public void envoyerListeJoueurs(List<ConnexionJoueurUno> joueursConnectes) {
         StringBuilder sb = new StringBuilder("@LISTE_JOUEURS");
@@ -385,7 +386,7 @@ public class ConnexionJoueurUno {
             Joueur j = c.getJoueur();
             sb.append(" [").append(j.getNom()).append(";").append(j.getMain().size()).append("]");
         }
-        this.threadConnexion.envoyerMessage(sb.toString());
+        serveur.envoyerATous(sb.toString());
     }
 
 

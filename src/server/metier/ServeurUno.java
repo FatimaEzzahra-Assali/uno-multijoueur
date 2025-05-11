@@ -85,7 +85,9 @@ public class ServeurUno {
 
         List<Joueur> joueurs = new ArrayList<>();
         for (ConnexionJoueurUno connexion : joueursConnectes) {
-            joueurs.add(connexion.getJoueur());
+            if (connexion.getJoueur() != null) {//debug
+                joueurs.add(connexion.getJoueur());
+            }
         }
 
         // On crée la partie avec pioche + tas aléatoires
@@ -192,14 +194,15 @@ public class ServeurUno {
         } catch (UNOException e) {
             connexion.envoyerMessageErreur(e.getMessage());
         }
-
+    tourSuivant();
     }
 
     private void tourSuivant() {
-        partie.finirTour();
+        //partie.finirTour();
         Joueur joueur = partie.getJoueurCourant();
         envoyerATous("@INFO C’est au tour de " + joueur.getNom() + ".");
-
+        ConnexionJoueurUno connexion = getConnexionJoueur(joueur.getNom());
+        connexion.envoyerMessageMain(); // On envoie la main a chaque fois qu'on passe au tour suivant
         //on passe au tour suivant donc on applique les effets en debut de tour
         partie.appliquerEffetsDebutTour();
     }
@@ -222,7 +225,7 @@ public class ServeurUno {
     public void envoyerTas(Carte carte){
         //on envoie le message a tout le monde
         for (ConnexionJoueurUno joueur : joueursConnectes) {
-            joueur.envoyerMessageTas(carte);
+            joueur.envoyerTas();
         }
     }
 
