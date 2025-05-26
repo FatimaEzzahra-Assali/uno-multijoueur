@@ -10,15 +10,17 @@ public class Accueil extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Chargement du fichier FXML
-        Parent root = FXMLLoader.load(getClass().getResource("Accueil.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Connexion.fxml"));
+        ConnexionController controller = new ConnexionController(primaryStage);
+        loader.setController(controller);
 
-        Scene scene = new Scene(root, 600, 400);
-
-        primaryStage.setTitle("Fenêtre Accueil");
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        primaryStage.setTitle("Connexion");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
 
     public static void main(String[] args) {
         launch(args);

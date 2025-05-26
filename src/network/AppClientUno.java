@@ -2,28 +2,8 @@ package network;
 
 import java.util.Scanner;
 
-/**
- * C'est l'application avec interface utilisateur. Toutefois, dans cette classe, on ne traite que des
- * communications de haut niveau. On utilise pas le protocole. C'est la classe ClientChat qui se chargera
- * de cà, grâce aux méthodes traiterXXX.
- * Cette classe est complète. En principe, vous n'avez pas à la modifier
- */
-public class AppClientUno {
 
-    /*
-    public void afficherConsole(String message) {
-        System.out.println(message);
-    }
-    public void afficherErreur(String message) {
-        System.err.println(message);
-    }
-    public void afficherMessagePrive(String pseudoDest, String message) {
-        afficherConsole("**"+pseudoDest+"** : "+message);
-    }
-    public void afficherMessagePublic(String message) {
-        afficherConsole(message);
-    }
-    */
+public class AppClientUno {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
