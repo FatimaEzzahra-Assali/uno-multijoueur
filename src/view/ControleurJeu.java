@@ -174,7 +174,8 @@ public class ControleurJeu extends ControleurCommun {
 
             if (valeurCouleur.length == 1) {
                 tasValeur = "PTT";  // valeur par défaut pour les cartes "PasseTonTour"
-                tasCouleur = capitalizeFirstLetter(valeurCouleur[0].trim().toLowerCase());
+                tasCouleur = valeurCouleur[0].trim().toLowerCase();
+                tasCouleur = capitalizeFirstLetter(tasCouleur);
 
                 // afficher l'image correspondante
                 String imagePath = "/images/cartes/carte_" + tasValeur + "_" + tasCouleur + ".png";
@@ -190,8 +191,8 @@ public class ControleurJeu extends ControleurCommun {
 
             // Cas normal (valeur + couleur)
             if (premierTas) {
-                tasCouleur = capitalizeFirstLetter(valeurCouleur[0].trim().toLowerCase());
-                tasValeur = valeurCouleur[1].trim();
+                tasCouleur = capitalizeFirstLetter(valeurCouleur[1].trim().toLowerCase());
+                tasValeur = valeurCouleur[0].trim();
                 premierTas = false;
             } else {
                 tasValeur = valeurCouleur[0].trim();

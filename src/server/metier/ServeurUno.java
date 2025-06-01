@@ -193,7 +193,7 @@ public class ServeurUno {
             }
 
             // Mise à jour pour tous
-            envoyerTas();
+            envoyerTas(carteDansMain);
             connexion.envoyerCarteJouee(carteDansMain);
             connexion.envoyerMessageMain();
             connexion.envoyerListeJoueurs(getJoueursConnectes());
@@ -202,7 +202,7 @@ public class ServeurUno {
             if (joueur.getMain().isEmpty()) {
                 int scoreGagnant = calculerScoreGagnant(joueur);
                 connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
-                finirPartie();
+                finirManche();
                 return;
             }
 
@@ -290,12 +290,13 @@ public class ServeurUno {
     }
 
     //appelé lorsuq'un joueur a 0 carte dans sa main
-    public void finirPartie() {
+    public void finirManche() {
         setPartieEnCours(false);
         setPartie(null);
+        for (ConnexionJoueurUno joueur : joueursConnectes) {
+            joueur.envoyerFinManche();
+        }
         joueursConnectes.clear();
-        envoyerATous("@FIN Fin du jeu ");
-
     }
 
     public void envoyerATous(String message) {
@@ -310,8 +311,7 @@ public class ServeurUno {
             joueur.envoyerTas();
         }
     }
-   */
-    /*public void envoyerTas(Carte carte){
+    public void envoyerTas(Carte carte){
         String valeur = "";
 
         if (carte instanceof CarteSimple simple) {
@@ -327,13 +327,12 @@ public class ServeurUno {
             joueur.envoyer(message);
         }
     }
-    */
+*/
 
-    public void envoyerTas(){
-        Carte sommet = partie.getTas().sommet();
-        if (sommet != null) {
+    public void envoyerTas(Carte carte){
+        if (carte != null) {
             for (ConnexionJoueurUno joueur : joueursConnectes) {
-                joueur.envoyerTas(sommet);
+                joueur.envoyerTas(carte);
             }
         }
     }

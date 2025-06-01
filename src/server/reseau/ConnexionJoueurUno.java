@@ -257,9 +257,9 @@ public class ConnexionJoueurUno {
                 return;
             }
             serveur.envoyerATous("@DEMARRER " + this.getPseudo() + " à lancé une partie.");
-            envoyerListeJoueurs(serveur.getJoueursConnectes());
+           // envoyerListeJoueurs(serveur.getJoueursConnectes());
             serveur.lancerPartie();
-            serveur.envoyerTas();
+            serveur.envoyerTas(serveur.getPartie().getTas().sommet());
     }
 
     private void traiterTO_ALL(String message) {
@@ -349,14 +349,13 @@ public class ConnexionJoueurUno {
         envoyer(stringBuilder.toString());
     }
 
-    /*Gestion du protocole pour le tas
-    * voir fonction toMessageTas
-    * */
+    /*
+    * Gestion du protocole pour le tas
+    */
     public void envoyerTas(Carte carte) {
         String valeur = (carte instanceof CarteSimple simple) ? String.valueOf(simple.getValeur()) :
                 (carte instanceof CartePlus2) ? "+2" : "?";
         envoyer("@TAS " + carte.getCouleur() + " " + getClass().getSimpleName() + " [ " + valeur + " " + carte.getCouleur() + " ]");
-
     }
 
 
@@ -435,6 +434,12 @@ public class ConnexionJoueurUno {
             }
         }
         envoyer(sb.toString());
+    }
+
+    public void envoyerFinManche(){
+        for(ConnexionJoueurUno c : serveur.getJoueursConnectes()){
+            c.envoyer("@FIN_MANCHE");
+        }
     }
 
 
