@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="800.0" prefWidth="900.0" style="-fx-background-color: #8d99ae;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox fx:id="joueurHaut" alignment="TOP_CENTER" layoutX="219.0" layoutY="12.0" prefHeight="183.0" prefWidth="477.0">
+         <children>
+            <Label fx:id="labelHaut" alignment="CENTER" contentDisplay="CENTER" text="Label" textAlignment="CENTER" />
+         </children>
+      </VBox>
+      <VBox fx:id="joueurGauche" alignment="CENTER_LEFT" layoutX="17.0" layoutY="155.0" prefHeight="523.0" prefWidth="175.0">
+         <children>
+            <Label fx:id="labelGauche" contentDisplay="CENTER" text="Label" />
+         </children>
+      </VBox>
+      <HBox fx:id="zoneTasEtPioche" alignment="CENTER" layoutX="222.0" layoutY="299.0" prefHeight="85.0" prefWidth="488.0" spacing="30.0">
+         <children>
+            <ImageView fx:id="cartePioche" fitHeight="100.0" fitWidth="65.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="carteTas" fitHeight="100.0" fitWidth="65.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </HBox>
+      <Button fx:id="boutonDemarrer" layoutX="391.0" layoutY="484.0" mnemonicParsing="false" onAction="#demarrerPartie" prefHeight="39.0" prefWidth="155.0" text="Démarrer Partie" />
+      <VBox fx:id="joueurDroite" alignment="CENTER_RIGHT" layoutX="720.0" layoutY="141.0" prefHeight="523.0" prefWidth="175.0">
+         <children>
+            <Label fx:id="labelDroite" alignment="CENTER_RIGHT" contentDisplay="CENTER" text="Label" />
+         </children>
+      </VBox>
+      <VBox alignment="CENTER" layoutX="224.0" layoutY="585.0" prefHeight="202.0" prefWidth="477.0" spacing="30.0">
+         <children>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
+               <children>
+                  <Button fx:id="boutonUno" mnemonicParsing="false" onAction="#direUno" text="UNO" />
+                  <Label fx:id="labelBas" alignment="CENTER" contentDisplay="CENTER" text="Label" textAlignment="CENTER" />
+               </children>
+            </HBox>
+            <HBox fx:id="mainJoueur" prefHeight="110.0" prefWidth="477.0" spacing="5.0" />
+            <HBox alignment="CENTER" prefHeight="46.0" prefWidth="477.0" spacing="15.0">
+               <children>
+                  <Button fx:id="boutonPioche" mnemonicParsing="false" onAction="#piocher" text="Piocher" />
+                  <Button fx:id="boutonFinTour" mnemonicParsing="false" onAction="#finDuTour" text="Finir Tour" />
+                  <Button fx:id="boutonPoseCarte" mnemonicParsing="false" onAction="#poserCarte" text="Poser Carte" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

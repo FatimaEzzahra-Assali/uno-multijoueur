@@ -103,7 +103,8 @@ public class ConnexionJoueurUno {
     /*
     Message envoyé par le joueur quand il pose une carte. Par exemple @CARTE_JOUEE 2 Jaune
     */
-    private final static String regexCARTE_JOUEE = "^@CARTE_JOUEE \\w+ \\w+$";
+    //private final static String regexCARTE_JOUEE = "^@CARTE_JOUEE \\w+ \\w+$";
+    private final static String regexCARTE_JOUEE = "^@CARTE_JOUEE \\p{Alpha}+ [^\\s]+$";
     private final static String regexFIN_TOUR = "^@FIN_TOUR$";					// évident
     private final static String regexPIOCHE = "^@PIOCHE$";						// évident
 
@@ -161,9 +162,10 @@ public class ConnexionJoueurUno {
     private final static String regexPUBLIC_FROM = "^@PUBLIC_FROM \\p{Alnum}+ .*$";
     private final static String regexERROR = "^@ERROR .*$";
 
+    private final static String regexGET_USERS = "^@GET_USERS$"; //Pour l'interface
     // Liste des expressions régulières utilisées pour valider les messages reçus
     private final static String[] protocole = {regexCONNEXION, regexDECONNEXION, regexDEMARRER,
-            regexCARTE_JOUEE, regexFIN_TOUR, regexPIOCHE, regexENCAISSE, regexUNO, regexMP_TO, regexTO_ALL};
+            regexCARTE_JOUEE, regexFIN_TOUR, regexPIOCHE, regexENCAISSE, regexUNO, regexMP_TO, regexTO_ALL, regexGET_USERS};
             // regexLISTE_JOUEURS,
             //regexMAIN, regexINFO, regexERREUR, regexTAS, regexVICTOIRE, regexFIN_MANCHE};
 
@@ -188,6 +190,7 @@ public class ConnexionJoueurUno {
         String commande = mots[0];
 
         switch (commande) {
+            case "@GET_USERS" -> envoyerListeUtilisateurs(serveur.getJoueursConnectes()); //Pour l'interface
             case "@CONNEXION" -> traiterConnexion(message);
             case "@DECONNEXION" -> traiterDeconnexion();
             case "@DEMARRER_PARTIE" -> traiterDemarrer(serveur);
@@ -204,7 +207,8 @@ public class ConnexionJoueurUno {
             case "@FIN_TOUR" -> serveur.finirTour(this);
             case "@PIOCHE" -> traiterPioche();
             case "@UNO" -> traiterUno();
-            case "ENCAISSE" -> serveur.encaisse(this);
+            //case "ENCAISSE" -> serveur.encaisse(this);
+            case "@ENCAISSE" -> serveur.encaisse(this);
             default -> envoyerMessageErreur("Commande inconnue : " + commande); //message d'erreur
         }
     }
@@ -223,6 +227,15 @@ public class ConnexionJoueurUno {
             this.setPseudo(mots[1]);
             this.setJoueur(new Joueur(mots[1]));
             envoyerMessageInfo(this.getPseudo() + " s'est connecté au serveur.");
+            //pour mon interface
+            this.envoyerListeUtilisateurs(serveur.getJoueursConnectes());
+
+            //pour mon interface
+            for (ConnexionJoueurUno autre : serveur.getJoueursConnectes()) {
+                if (!autre.equals(this)) {
+                    autre.envoyerListeUtilisateurs(serveur.getJoueursConnectes());
+                }
+            }
         }
     }
 
@@ -270,7 +283,7 @@ public class ConnexionJoueurUno {
             return;
         }
     }
-
+    /*
     public void traiterPioche() {
         Joueur joueur = getJoueur();
         try {
@@ -281,6 +294,37 @@ public class ConnexionJoueurUno {
         }
         envoyerMessageMain();
 
+    }
+     */
+    public void traiterPioche() {
+        Joueur joueur = getJoueur();
+
+        if (!serveur.isPartieEnCours()) {
+            envoyerMessageErreur("La partie n’a pas encore commencé.");
+            return;
+        }
+
+        if (!joueur.equals(serveur.getPartie().getJoueurCourant())) {
+            envoyerMessageErreur("Ce n’est pas votre tour.");
+            return;
+        }
+
+        try {
+            // Le joueur pioche une carte
+            Carte cartePiochee = joueur.piocher(serveur.getPartie());
+
+            // Message de pioche
+            envoyerMessagePioche(cartePiochee);
+
+            // Main mise à jour
+            envoyerMessageMain();
+
+            // ➤ Tour terminé, qu'importe la carte
+            serveur.finirTour(this);
+
+        } catch (UNOException e) {
+            envoyerMessageErreur(e.getMessage());
+        }
     }
 
     public void traiterUno() {
@@ -347,7 +391,7 @@ public class ConnexionJoueurUno {
                 return true;
         }
         return false;
-    }
+   }
     public boolean verifiePhraseDuProtocole(String message, String phrase) {
         Pattern pattern = Pattern.compile(phrase, Pattern.CASE_INSENSITIVE);
         return pattern.matcher(message).matches();
@@ -373,7 +417,7 @@ public class ConnexionJoueurUno {
 
     public void envoyerMessageVictoire(ServeurUno serveur, Joueur joueurVictoire, int score) {
         for (ConnexionJoueurUno c : serveur.getJoueursConnectes()) {
-            c.envoyer("@VICTOIRE" + joueurVictoire.getNom() + "à gagné la partie et à obtenu un score de : " + score + " points !");
+            c.envoyer("@VICTOIRE " + joueurVictoire.getNom() + " à gagné la partie et à obtenu un score de : " + score + " points !");
         }
     }
     //public void envoyerMessageTas(Carte carte) {
@@ -387,6 +431,17 @@ public class ConnexionJoueurUno {
             sb.append(" [").append(j.getNom()).append(";").append(j.getMain().size()).append("]");
         }
         serveur.envoyerATous(sb.toString());
+    }
+
+    public void envoyerListeUtilisateurs(List<ConnexionJoueurUno> connexions) {
+        StringBuilder sb = new StringBuilder("@USERS ");
+        for (ConnexionJoueurUno c : connexions) {
+            String pseudo = c.getPseudo();
+            if (pseudo != null) {
+                sb.append(pseudo).append(";");
+            }
+        }
+        envoyer(sb.toString());
     }
 
 

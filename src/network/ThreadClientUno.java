@@ -3,15 +3,22 @@ package network;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.function.Consumer;
 
 public class ThreadClientUno extends Thread {
     private final ClientUno client;
     private final BufferedReader in;
     private boolean actif = true;
 
+    private Consumer<String> onMessageCallback;
+
     public ThreadClientUno(ClientUno client) throws IOException {
         this.client = client;
         this.in = new BufferedReader(new InputStreamReader(client.getSocket().getInputStream()));
+    }
+
+    public void setOnMessageCallback(Consumer<String> callback) {
+        this.onMessageCallback = callback;
     }
 
     @Override
@@ -35,9 +42,9 @@ public class ThreadClientUno extends Thread {
     }
 
     private void traiterMessage(String message) {
-        System.out.println("📨 Message du serveur : " + message);
+        System.out.println("Message du serveur : " + message);
 
-        // Ici, tu pourrais ajouter un parseur plus intelligent plus tard
+        // Affichage
         if (message.startsWith("@INFO")) {
             System.out.println("[INFO] " + message.substring(6));
         } else if (message.startsWith("@ERREUR")) {
@@ -46,8 +53,14 @@ public class ThreadClientUno extends Thread {
             System.out.println("[MAIN] Main reçue : " + message);
         } else if (message.startsWith("@TAS")) {
             System.out.println("[TAS] Carte au sommet : " + message);
+        } else if (message.startsWith("@USERS")) {
+            System.out.println("[USERS] Utilisateurs connectés : " + message.substring(7));
         } else {
             System.out.println("[AUTRE] " + message);
+        }
+
+        if (onMessageCallback != null) {
+            onMessageCallback.accept(message);
         }
     }
 

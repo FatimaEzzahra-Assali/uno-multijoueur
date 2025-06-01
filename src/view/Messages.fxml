@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="418.0" prefWidth="667.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TabPane prefHeight="418.0" prefWidth="667.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Public">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="408.0" prefWidth="671.0" style="-fx-background-color: lightgrey;">
+                     <children>
+                        <TextArea fx:id="publicMessagesArea" editable="false" layoutX="206.0" layoutY="26.0" prefHeight="273.0" prefWidth="386.0" />
+                        <TextField fx:id="messageContenu" layoutX="366.0" layoutY="324.0" prefHeight="47.0" prefWidth="226.0" />
+                        <Button fx:id="MessagePublic" layoutX="592.0" layoutY="329.0" mnemonicParsing="false" onAction="#envoyerMessagePublic" prefHeight="12.0" prefWidth="25.0" style="-fx-background-color: transparent;">
+                           <graphic>
+                              <ImageView fitHeight="28.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../images/boutons/envoi_bouton.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="14.0" layoutY="26.0" prefHeight="26.0" prefWidth="172.0" style="-fx-background-color: white; -fx-font-weight: bold;" text="Utilisateurs connectés" textAlignment="CENTER" />
+                        <ListView fx:id="listeUtilisateurs" layoutX="14.0" layoutY="63.0" prefHeight="236.0" prefWidth="173.0" />
+                     </children></AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="Privé">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: lightgrey;">
+                     <children>
+                        <TextArea fx:id="zoneMessagesPrives" editable="false" layoutX="205.0" layoutY="21.0" prefHeight="273.0" prefWidth="386.0" />
+                        <ListView fx:id="listePrives" layoutX="12.0" layoutY="57.0" onMouseClicked="#changerConversation" prefHeight="236.0" prefWidth="173.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="13.0" layoutY="21.0" prefHeight="24.0" prefWidth="171.0" style="-fx-background-color: white; -fx-font-weight: bold;" text="Messages privés" textAlignment="CENTER" wrapText="true" />
+                        <TextField fx:id="messagePriveContenu" layoutX="365.0" layoutY="316.0" prefHeight="47.0" prefWidth="225.0" />
+                        <Button fx:id="messagePrive" layoutX="594.0" layoutY="321.0" mnemonicParsing="false" onAction="#envoyerMessagePrive" prefHeight="29.0" prefWidth="40.0" style="-fx-background-color: transparent;">
+                           <graphic>
+                              <ImageView fitHeight="32.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../images/boutons/envoi_bouton.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                     </children></AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>

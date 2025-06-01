@@ -62,6 +62,7 @@ public class Partie {
         joueurCourantIndex = (joueurCourantIndex + 1) % joueurs.size();
     }
 
+    /*
     public void finirTour()throws UNOException{
         //Si le joueur tente de passer son tour sans dire Uno,
         if(getJoueurCourant().getNombreCartes() == 1 && !getJoueurCourant().aDitUno()){
@@ -82,6 +83,29 @@ public class Partie {
 
     }
 
+     */
+    public void finirTour() throws UNOException {
+        if(getJoueurCourant().getNombreCartes() == 1 && !getJoueurCourant().aDitUno()){
+            punir(this.getJoueurCourant());
+            throw new UNOException("Le joueur courant n'a pas dit Uno !");
+        }
+
+        if(!aJoueCeTour){
+            throw new UNOException("Le joueur ne peut pas finir son tour sans poser une carte.");
+        }
+
+        getJoueurCourant().resetUno();
+
+        // Récupère la carte jouée
+        Carte derniereCarte = tas.sommet();
+
+        if (derniereCarte instanceof CartePasseTonTour) {
+            passerAuJoueurSuivant(); // saute le joueur suivant
+        }
+
+        passerAuJoueurSuivant(); // joueur suivant joue
+        aJoueCeTour = false;
+    }
 
     public Pioche getPioche() {
         return pioche;

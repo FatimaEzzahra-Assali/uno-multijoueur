@@ -39,11 +39,18 @@ public class ClientUno {
     }
 
     public void jouerCarte(String couleur, String valeur) {
-        out.println("@JOUERCARTE " + couleur + " " + valeur);
+        if (valeur.equals("12")) valeur = "+2";
+        out.println("@CARTE_JOUEE " + couleur + " " + valeur);
     }
 
+    /*
     public void piocher() {
         out.println("@PIOCHER");
+    }
+     */
+
+    public void piocher() {
+        out.println("@PIOCHE");
     }
 
     public void direUno() {
@@ -94,5 +101,22 @@ public class ClientUno {
 
     public static void setInstance(ClientUno client) {
         instance = client;
+    }
+
+    //Pour l'interface
+    public void demanderListeUtilisateurs() {
+        out.println("@GET_USERS");
+    }
+
+    public void demarrerPartie() {
+        out.println("@DEMARRER_PARTIE");
+    }
+
+    public void envoyer(String message) {
+        if (out != null) {
+            out.println(message);
+        } else {
+            System.err.println("Flux de sortie non initialisé !");
+        }
     }
 }

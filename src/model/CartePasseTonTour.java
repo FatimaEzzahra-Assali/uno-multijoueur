@@ -14,13 +14,20 @@ public class CartePasseTonTour extends Carte {
     @Override
     public void appliquerEffet(Partie partie) {
         // Effet de la carte passe ton tour : le joueur suivant passe son tour
-        partie.passerAuJoueurSuivant();
+        //partie.passerAuJoueurSuivant();
     }
 
+    /*
     @Override
     public String toString() {
         return "PasseTonTour [" + couleur + "]";
     }
+
+     */
+
+    @Override
+    public String toString() {
+        return "[PTT " + couleur + "]";}
 
     @Override
     public boolean equals(Object o) {

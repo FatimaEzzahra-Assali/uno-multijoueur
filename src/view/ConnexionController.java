@@ -1,5 +1,6 @@
 package view;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,7 +19,7 @@ public class ConnexionController extends ControleurCommun{
     public ConnexionController(Stage stage) {
         super(stage);
     }
-
+    /*
     @FXML
     public void handleConnexion() {
         String pseudo = pseudoField.getText().trim();
@@ -45,6 +46,48 @@ public class ConnexionController extends ControleurCommun{
                 afficherAccueil();
             } else {
                 // Si déjà connecté, prévenir
+                afficherAlerte("Déjà connecté", "Vous êtes déjà connecté.");
+            }
+
+        } catch (Exception e) {
+            afficherAlerte("Erreur", "Connexion au serveur impossible.");
+            e.printStackTrace();
+        }
+    }
+    */
+
+    @FXML
+    public void handleConnexion() {
+        String pseudo = pseudoField.getText().trim();
+
+        if (pseudo.isEmpty()) {
+            afficherAlerte("Erreur", "Veuillez entrer un pseudo.");
+            return;
+        }
+
+        try {
+            ClientUno client = ClientUno.getInstance();
+
+            if (client == null) {
+                client = new ClientUno();
+                ClientUno.setInstance(client);
+                client.setPseudo(pseudo);
+                client.envoyerConnexion();
+
+                ThreadClientUno thread = new ThreadClientUno(client);
+                client.setThreadClientUno(thread);
+
+                client.getThreadClientUno().setOnMessageCallback(message -> {
+                    if (message.contains("s'est connecté au serveur")) {
+                        Platform.runLater(this::afficherAccueil);
+                    } else if (message.contains("pseudo existe")) {
+                        Platform.runLater(() -> afficherAlerte("Erreur", "Ce pseudo est déjà utilisé."));
+                    }
+                });
+
+                thread.start();
+
+            } else {
                 afficherAlerte("Déjà connecté", "Vous êtes déjà connecté.");
             }
 

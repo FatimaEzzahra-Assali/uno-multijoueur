@@ -95,9 +95,15 @@ public class ServeurUno {
 
         partie.initialiserPartie();
         setPartieEnCours(true);
+        for (ConnexionJoueurUno connexion : joueursConnectes) {
+            connexion.envoyerMessageMain();
+        }
+        for (ConnexionJoueurUno connexion : joueursConnectes) {
+            connexion.envoyerListeJoueurs(joueursConnectes);
+        }
         tourSuivant();
     }
-
+    /*
     public void jouerCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
         if (!isPartieEnCours()) {
             connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
@@ -134,6 +140,138 @@ public class ServeurUno {
             connexion.envoyerMessageErreur("Carte invalide");
         }
 
+    }
+     */
+    /*
+    public void jouerCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
+        if (!isPartieEnCours()) {
+            connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
+            return;
+        }
+
+        Joueur joueur = connexion.getJoueur();
+
+        try {
+            Couleur coul = Couleur.valueOf(couleur.toUpperCase());
+            Carte carteAJouer;
+
+            if (valeur.equalsIgnoreCase("Passe")) {
+                carteAJouer = new CartePasseTonTour(coul);
+            } else if (valeur.equals("+2")) {
+                carteAJouer = new CartePlus2(coul);
+            } else {
+                int val = Integer.parseInt(valeur);
+                carteAJouer = new CarteSimple(coul, val);
+            }
+
+            Carte carteDansMain;
+
+            if (carteAJouer instanceof CarteSimple simple) {
+                carteDansMain = joueur.trouverCarteDansMain(coul, simple.getValeur());
+            } else {
+                // Pour les cartes spéciales, on parcourt la main à la recherche d'une carte égale
+                carteDansMain = null;
+                for (Carte c : joueur.getMain()) {
+                    if (c.equals(carteAJouer)) {
+                        carteDansMain = c;
+                        break;
+                    }
+                }
+                if (carteDansMain == null) {
+                    connexion.envoyerMessageErreur("Tu n'as pas cette carte en main !");
+                    return;
+                }
+            }
+
+            joueur.poserCarte(carteDansMain, partie);
+            envoyerTas(carteDansMain);
+            connexion.envoyerCarteJouee(carteDansMain);
+
+            connexion.envoyerMessageMain();
+            connexion.envoyerListeJoueurs(getJoueursConnectes());
+
+            if (joueur.getMain().isEmpty()) {
+                int scoreGagnant = calculerScoreGagnant(joueur);
+                connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
+                return;
+            }
+
+        } catch (UNOException e) {
+            connexion.envoyerMessageErreur(e.getMessage());
+        } catch (Exception e) {
+            connexion.envoyerMessageErreur("Carte invalide");
+        }
+    }
+    *
+     */
+
+    public void jouerCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
+        if (!isPartieEnCours()) {
+            connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
+            return;
+        }
+
+        Joueur joueur = connexion.getJoueur();
+
+        try {
+            Couleur coul = Couleur.valueOf(couleur.toUpperCase());
+            Carte carteAJouer;
+
+            // Création de la carte à jouer
+            if (valeur.equals("+2")) {
+                carteAJouer = new CartePlus2(coul);
+            } else if (valeur.equalsIgnoreCase("PTT")) {
+                carteAJouer = new CartePasseTonTour(coul);
+            } else {
+                int val = Integer.parseInt(valeur);
+                carteAJouer = new CarteSimple(coul, val);
+            }
+
+            // Recherche dans la main du joueur
+            Carte carteDansMain = null;
+
+            if (carteAJouer instanceof CarteSimple simple) {
+                carteDansMain = joueur.trouverCarteDansMain(coul, simple.getValeur());
+            } else {
+                for (Carte c : joueur.getMain()) {
+                    if (c.equals(carteAJouer)) {
+                        carteDansMain = c;
+                        break;
+                    }
+                }
+            }
+
+            if (carteDansMain == null) {
+                connexion.envoyerMessageErreur("Tu n'as pas cette carte en main !");
+                return;
+            }
+
+            // Poser la carte
+            joueur.poserCarte(carteDansMain, partie);
+
+            // Si c’est une carte +2, activer l’effet sans empilement
+            if (carteDansMain instanceof CartePlus2) {
+                partie.setActionPlus2Actif(true);
+            }
+
+            // Mise à jour pour tous
+            envoyerTas(carteDansMain);
+            connexion.envoyerCarteJouee(carteDansMain);
+            connexion.envoyerMessageMain();
+            connexion.envoyerListeJoueurs(getJoueursConnectes());
+
+            // Si victoire
+            if (joueur.getMain().isEmpty()) {
+                int scoreGagnant = calculerScoreGagnant(joueur);
+                connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
+                return;
+            }
+
+        } catch (UNOException e) {
+            connexion.envoyerMessageErreur(e.getMessage());
+        } catch (Exception e) {
+            connexion.envoyerMessageErreur("Carte invalide");
+        }
     }
 
     public void encaisse(ConnexionJoueurUno connexion) {
@@ -197,13 +335,28 @@ public class ServeurUno {
     tourSuivant();
     }
 
-    private void tourSuivant() {
+    /*private void tourSuivant() {
         //partie.finirTour();
         Joueur joueur = partie.getJoueurCourant();
         envoyerATous("@INFO C’est au tour de " + joueur.getNom() + ".");
         ConnexionJoueurUno connexion = getConnexionJoueur(joueur.getNom());
         connexion.envoyerMessageMain(); // On envoie la main a chaque fois qu'on passe au tour suivant
         //on passe au tour suivant donc on applique les effets en debut de tour
+        partie.appliquerEffetsDebutTour();
+    }
+     */
+    private void tourSuivant() {
+        Joueur joueur = partie.getJoueurCourant();
+        ConnexionJoueurUno connexion = getConnexionJoueur(joueur.getNom());
+
+        // === PIOCHER AUTOMATIQUEMENT si +2 actif ===
+        if (partie.isActionPlus2Actif()) {
+            encaisse(connexion);
+            return; // empêche double appel après encaisse()
+        }
+
+        envoyerATous("@INFO C’est au tour de " + joueur.getNom() + ".");
+        connexion.envoyerMessageMain();
         partie.appliquerEffetsDebutTour();
     }
 
@@ -222,10 +375,27 @@ public class ServeurUno {
         }
     }
 
-    public void envoyerTas(Carte carte){
+    /*public void envoyerTas(Carte carte){
         //on envoie le message a tout le monde
         for (ConnexionJoueurUno joueur : joueursConnectes) {
             joueur.envoyerTas();
+        }
+    }
+   */
+    public void envoyerTas(Carte carte){
+        String valeur = "";
+
+        if (carte instanceof CarteSimple simple) {
+            valeur = String.valueOf(simple.getValeur());
+        } else if (carte instanceof CartePlus2) {
+            valeur = "+2";
+        }
+        String couleur = carte.getCouleur().name();
+
+        String message = "@TAS " + couleur + " " + carte.getClass().getSimpleName() + " [ " + valeur + " " + couleur + " ]";
+
+        for (ConnexionJoueurUno joueur : joueursConnectes) {
+            joueur.envoyer(message);
         }
     }
 
@@ -236,9 +406,9 @@ public class ServeurUno {
         }
         // Et on parcours la liste des utilisateurs pour leur envoyer le message à chacun (sauf à soi-même)
         for (ConnexionJoueurUno c : joueursConnectes) {
-            if (c.equals(emetteur))
+            /*if (c.equals(emetteur))
                 continue;
-
+            */
             c.envoyerMessagePublic(emetteur, message);
         }
     }
@@ -282,6 +452,14 @@ public class ServeurUno {
         }
 
         return score;
+    }
+
+    public void envoyerListeUtilisateursConnectes(ConnexionJoueurUno demandeur) {
+        StringBuilder sb = new StringBuilder("@USERS");
+        for (ConnexionJoueurUno c : joueursConnectes) {
+            sb.append(" ").append(c.getPseudo());
+        }
+        demandeur.envoyer(sb.toString());
     }
 
 }

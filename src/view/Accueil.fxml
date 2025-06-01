@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #8d99ae;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
@@ -19,5 +20,29 @@
             <Font size="14.0" />
          </font>
       </Label>
+      <VBox alignment="CENTER" prefHeight="98.0" prefWidth="47.0" spacing="5.0">
+         <children>
+            <Button fx:id="boutonInformations" mnemonicParsing="false" onAction="#afficherInformations" style="-fx-background-color: transparent;">
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/boutons/info_bouton.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="36.0" style="-fx-background-color: transparent;">
+               <graphic>
+                  <ImageView fitHeight="34.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/boutons/aide_bouton.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+         </children>
+      </VBox>
+      <Button fx:id="boutonMessages" layoutX="680.0" layoutY="14.0" mnemonicParsing="false" onAction="#afficherMessages" prefHeight="31.0" prefWidth="106.0" style="-fx-background-color: transparent; -fx-background-image: url('/images/boutons/grand_bouton.png'); -fx-background-size: contain; -fx-font-weight: bold; -fx-text-fill: white;" text="Messages" />
+      <Button fx:id="boutonJeu" layoutX="332.0" layoutY="460.0" mnemonicParsing="false" onAction="#afficherJeu" prefHeight="39.0" prefWidth="137.0" style="-fx-background-color: transparent; -fx-background-image: url('/images/boutons/grand_bouton.png'); -fx-background-size: contain; -fx-font-weight: bold; -fx-text-fill: white;" text="Jouer" />
    </children>
 </AnchorPane>
