@@ -35,4 +35,18 @@ public class DaoPartie {
 
         return null;
     }
+
+    public static void afficherToutesLesParties() {
+        String sql = "SELECT id_partie, date_partie FROM Partie";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            System.out.println("=== Parties jouées ===");
+            while (rs.next()) {
+                System.out.println("[" + rs.getInt("id_partie") + "] " + rs.getString("date_partie"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

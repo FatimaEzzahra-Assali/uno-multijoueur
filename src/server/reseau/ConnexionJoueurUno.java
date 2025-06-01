@@ -226,7 +226,11 @@ public class ConnexionJoueurUno {
         }catch(ServeurUnoException e){
             this.setPseudo(mots[1]);
             this.setJoueur(new Joueur(mots[1]));
+
+            //Enregistrement en base de données
+            jdbc.metier.JoueurBDD joueurBDD = jdbc.DaoJoueur.getOrCreateJoueur(mots[1]);
             envoyerMessageInfo(this.getPseudo() + " s'est connecté au serveur.");
+            System.out.println("Joueur enregistré dans la base : " + joueurBDD);
             //pour mon interface
             this.envoyerListeUtilisateurs(serveur.getJoueursConnectes());
 

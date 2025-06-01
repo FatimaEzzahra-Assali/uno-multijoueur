@@ -292,12 +292,43 @@ public class ServeurUno {
     //appelé lorsuq'un joueur a 0 carte dans sa main
     public void finirManche() {
         setPartieEnCours(false);
+
+        // 1. Enregistrer la partie
+        jdbc.metier.PartieBDD partieBDD = jdbc.DaoPartie.creerNouvellePartie();
+
+        // 2. Enregistrer les scores
+        for (ConnexionJoueurUno connexion : joueursConnectes) {
+            Joueur j = connexion.getJoueur();
+            int score = 0;
+            for (Carte c : j.getMain()) {
+                if (c instanceof CarteSimple simple) {
+                    score += simple.getValeur();
+                } else if (c instanceof CartePlus2 || c instanceof CartePasseTonTour) {
+                    score += 10;
+                }
+            }
+
+            // Enregistrement score en BDD
+            jdbc.DaoScore.enregistrerScore(j.getNom(), partieBDD.getId(), score);
+        }
+
+        // 3. Envoyer fin de manche à tous
+        for (ConnexionJoueurUno joueur : joueursConnectes) {
+            joueur.envoyerFinManche();
+        }
+
+        setPartie(null);
+        joueursConnectes.clear();
+    }
+
+    /* public void finirManche() {
+        setPartieEnCours(false);
         setPartie(null);
         for (ConnexionJoueurUno joueur : joueursConnectes) {
             joueur.envoyerFinManche();
         }
         joueursConnectes.clear();
-    }
+    }*/
 
     public void envoyerATous(String message) {
         for (ConnexionJoueurUno joueur : joueursConnectes) {

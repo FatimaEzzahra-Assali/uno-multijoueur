@@ -46,4 +46,18 @@ public class DaoJoueur {
 
         return null; // Si erreur
     }
+
+    public static void afficherTousLesJoueurs() {
+        String sql = "SELECT id_joueur, pseudo FROM Joueur";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            System.out.println("=== Joueurs enregistrés ===");
+            while (rs.next()) {
+                System.out.println("[" + rs.getInt("id_joueur") + "] " + rs.getString("pseudo"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
