@@ -30,6 +30,8 @@ public class ControleurJeu extends ControleurCommun {
     @FXML private Label labelGauche;
     @FXML private Label labelDroite;
     @FXML private Label labelBas;
+    @FXML private Label labelTour;
+    @FXML private Label labelInfos;
 
     @FXML private ImageView cartePioche;
     @FXML private ImageView carteTas;
@@ -39,6 +41,7 @@ public class ControleurJeu extends ControleurCommun {
     @FXML private Button boutonPioche;
     @FXML private Button boutonUno;
 
+    private boolean cartePoseeCeTour = false;
     private boolean aDitUno = false;
     private boolean monTour = false;
     private String valeurCarteSelectionnee = null;
@@ -101,6 +104,24 @@ public class ControleurJeu extends ControleurCommun {
                     monTour = false;
                 });
             }
+            else if (message.startsWith("@ERREUR")) {
+                Platform.runLater(() -> {
+                    afficherInfo(message.replace("@ERREUR", "").trim(), true);
+                    // Si erreur de carte non jouable, on garde les boutons actifs
+                    if (message.contains("Carte non jouable") && monTour && !cartePoseeCeTour) {
+                        boutonPoseCarte.setDisable(false);
+                        verifierSiCarteJouable(); // réévalue si pioche doit être réactivée
+                    }
+                });
+            }
+            else if (message.startsWith("@CARTEJOUEE")) {
+                Platform.runLater(() -> {
+                    cartePoseeCeTour = true;
+                    boutonFinTour.setDisable(false);
+                    boutonPioche.setDisable(true);
+                    boutonPoseCarte.setDisable(true);
+                });
+            }
 
         });
 
@@ -119,7 +140,7 @@ public class ControleurJeu extends ControleurCommun {
         List<String> autres = new ArrayList<>(joueurs);
         autres.remove(pseudo);
 
-        labelBas.setText(pseudo);
+        labelBas.setText("Moi (" + pseudo + ")");
         labelHaut.setText(autres.size() > 0 ? autres.get(0) : "");
         labelGauche.setText(autres.size() > 1 ? autres.get(1) : "");
         labelDroite.setText(autres.size() > 2 ? autres.get(2) : "");
@@ -253,11 +274,7 @@ public class ControleurJeu extends ControleurCommun {
         }
 
         if (tailleMainPrecedente != -1 && tailleApres == tailleMainPrecedente + 2 && !monTour) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Alerte +2");
-            alert.setHeaderText(null);
-            alert.setContentText("Vous avez pioché 2 cartes à cause d'un +2 !");
-            alert.showAndWait();
+            afficherInfo("Vous avez pioché 2 cartes à cause d'un +2 !", false);
         }
 
         tailleMainPrecedente = tailleApres;
@@ -319,11 +336,14 @@ public class ControleurJeu extends ControleurCommun {
     }
 
     private void gererTour(String message) {
-        if (message.contains(pseudo)) {
+        String joueurActuel = message.substring(6).trim(); // Supprime "@INFO "
+        cartePoseeCeTour = false;
+        if (joueurActuel.contains(pseudo)) {
             monTour = true;
             boutonPoseCarte.setDisable(false);
-            boutonFinTour.setDisable(true); // on n'autorise pas de suite la fin du tour
-            System.out.println(">> C’est mon tour !");
+            boutonFinTour.setDisable(true);
+
+            labelTour.setText("C’est ton tour !");
         } else {
             monTour = false;
             boutonPoseCarte.setDisable(true);
@@ -335,6 +355,8 @@ public class ControleurJeu extends ControleurCommun {
             for (javafx.scene.Node node : mainJoueur.getChildren()) {
                 node.setStyle("");
             }
+
+            labelTour.setText(joueurActuel);
         }
     }
 
@@ -351,11 +373,11 @@ public class ControleurJeu extends ControleurCommun {
         }
 
         ClientUno.getInstance().jouerCarte(couleurCarteSelectionnee, valeurCarteSelectionnee);
-        boutonPioche.setDisable(true);
+
         valeurCarteSelectionnee = null;
         couleurCarteSelectionnee = null;
         boutonPoseCarte.setDisable(true);
-        boutonFinTour.setDisable(false);
+
 
         for (javafx.scene.Node node : mainJoueur.getChildren()) {
             node.setStyle("");
@@ -377,7 +399,7 @@ public class ControleurJeu extends ControleurCommun {
     }
 
     private void verifierSiCarteJouable() {
-        if (!monTour || tasValeur == null || tasCouleur == null) {
+        if (!monTour || tasValeur == null || tasCouleur == null || cartePoseeCeTour) {
             boutonPioche.setDisable(true);
             return;
         }
@@ -392,14 +414,12 @@ public class ControleurJeu extends ControleurCommun {
                             .replace("carte_", "")
                             .replace(".png", "");
 
-                    String[] parts = nomCarte.split("_"); // [Bleu, 2]
+                    String[] parts = nomCarte.split("_");
                     if (parts.length == 2) {
                         String couleur = parts[0];
                         String valeur = parts[1];
 
-                        //if (valeur.equals("Passe")) valeur = "PTT";
                         if (valeur.equals("12")) valeur = "+2";
-
                         String tasValeurComparee = tasValeur.equals("12") ? "+2" : tasValeur;
 
                         if (couleur.equalsIgnoreCase(tasCouleur) || valeur.equalsIgnoreCase(tasValeurComparee)) {
@@ -411,7 +431,7 @@ public class ControleurJeu extends ControleurCommun {
             }
         }
 
-        boutonPioche.setDisable(peutJouer); // activer que si AUCUNE carte jouable
+        boutonPioche.setDisable(peutJouer);
     }
 
     @FXML
@@ -437,6 +457,18 @@ public class ControleurJeu extends ControleurCommun {
         ClientUno.getInstance().envoyer("@UNO");
         aDitUno = true;
         boutonUno.setVisible(false);
+    }
+
+
+    private void afficherInfo(String texte, boolean erreur) {
+        labelInfos.setText(texte);
+        //ensuite le message s'enleve
+        new Thread(() -> {
+            try {
+                Thread.sleep(15000);
+            } catch (InterruptedException ignored) {}
+            Platform.runLater(() -> labelInfos.setText(""));
+        }).start();
     }
 
 }

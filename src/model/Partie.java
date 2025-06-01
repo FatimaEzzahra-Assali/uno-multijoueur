@@ -5,7 +5,7 @@ import java.util.List;
 public class Partie {
     private List<Joueur> joueurs;
     private int joueurCourantIndex;
-    private boolean pttDejaApplique = false;
+    private CartePasseTonTour dernierePttAppliquee = null;
     private boolean aJoueCeTour;
     private Pioche pioche;
     private Tas tas;
@@ -58,13 +58,9 @@ public class Partie {
     public void setAJoueCeTour(boolean aJoueCeTour) {
         this.aJoueCeTour = aJoueCeTour;
     }
-    public void setPttDejaApplique(boolean v) {
-        this.pttDejaApplique = v;
+    public void setDernierePttAppliquee(CartePasseTonTour ptt) {
+        this.dernierePttAppliquee = ptt;
     }
-    public boolean isPttDejaApplique() {
-        return pttDejaApplique;
-    }
-
     public void passerAuJoueurSuivant() {
         joueurCourantIndex = (joueurCourantIndex + 1) % joueurs.size();
     }
@@ -106,12 +102,16 @@ public class Partie {
         // Récupère la carte jouée
         Carte derniereCarte = tas.sommet();
 
-        if (derniereCarte instanceof CartePasseTonTour && !pttDejaApplique) {
-            passerAuJoueurSuivant();         // sauter une seule fois
-            pttDejaApplique = true;          // marquer que c'est appliqué
+        if (derniereCarte instanceof CartePasseTonTour ptt) {
+            if (dernierePttAppliquee == null || !dernierePttAppliquee.equals(ptt)) {
+                passerAuJoueurSuivant();                // sauter le joueur
+                dernierePttAppliquee = ptt;             // mémoriser cette PTT comme "déjà appliquée"
+            }
+        } else {
+            dernierePttAppliquee = null;                // reset si ce n’est plus un PTT
         }
 
-        passerAuJoueurSuivant(); // joueur suivant joue
+        passerAuJoueurSuivant(); // avancer au joueur actif
         aJoueCeTour = false;
     }
 

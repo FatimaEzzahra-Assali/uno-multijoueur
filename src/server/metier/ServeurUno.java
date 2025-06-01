@@ -202,6 +202,7 @@ public class ServeurUno {
             if (joueur.getMain().isEmpty()) {
                 int scoreGagnant = calculerScoreGagnant(joueur);
                 connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
+                finirPartie();
                 return;
             }
 
