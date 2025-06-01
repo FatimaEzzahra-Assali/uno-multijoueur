@@ -38,4 +38,13 @@ public abstract class Carte {
     }
 
     public abstract String toCode();
+
+    // Dans Carte.java ou une classe utilitaire
+    public String toMessageTas() {
+        String valeur = (this instanceof CarteSimple simple) ? String.valueOf(simple.getValeur()) :
+                (this instanceof CartePlus2) ? "+2" : "?";
+        return "@TAS " + getCouleur() + " " + getClass().getSimpleName() + " [ " + valeur + " " + getCouleur() + " ]";
+    }
+
 }
+

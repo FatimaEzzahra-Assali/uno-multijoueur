@@ -142,7 +142,6 @@ public class ServeurUno {
 
     }
      */
-    /*
     public void jouerCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
         if (!isPartieEnCours()) {
             connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
@@ -151,68 +150,7 @@ public class ServeurUno {
 
         Joueur joueur = connexion.getJoueur();
 
-        try {
-            Couleur coul = Couleur.valueOf(couleur.toUpperCase());
-            Carte carteAJouer;
-
-            if (valeur.equalsIgnoreCase("Passe")) {
-                carteAJouer = new CartePasseTonTour(coul);
-            } else if (valeur.equals("+2")) {
-                carteAJouer = new CartePlus2(coul);
-            } else {
-                int val = Integer.parseInt(valeur);
-                carteAJouer = new CarteSimple(coul, val);
-            }
-
-            Carte carteDansMain;
-
-            if (carteAJouer instanceof CarteSimple simple) {
-                carteDansMain = joueur.trouverCarteDansMain(coul, simple.getValeur());
-            } else {
-                // Pour les cartes spéciales, on parcourt la main à la recherche d'une carte égale
-                carteDansMain = null;
-                for (Carte c : joueur.getMain()) {
-                    if (c.equals(carteAJouer)) {
-                        carteDansMain = c;
-                        break;
-                    }
-                }
-                if (carteDansMain == null) {
-                    connexion.envoyerMessageErreur("Tu n'as pas cette carte en main !");
-                    return;
-                }
-            }
-
-            joueur.poserCarte(carteDansMain, partie);
-            envoyerTas(carteDansMain);
-            connexion.envoyerCarteJouee(carteDansMain);
-
-            connexion.envoyerMessageMain();
-            connexion.envoyerListeJoueurs(getJoueursConnectes());
-
-            if (joueur.getMain().isEmpty()) {
-                int scoreGagnant = calculerScoreGagnant(joueur);
-                connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
-                return;
-            }
-
-        } catch (UNOException e) {
-            connexion.envoyerMessageErreur(e.getMessage());
-        } catch (Exception e) {
-            connexion.envoyerMessageErreur("Carte invalide");
-        }
-    }
-    *
-     */
-
-    public void jouerCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
-        if (!isPartieEnCours()) {
-            connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
-            return;
-        }
-
-        Joueur joueur = connexion.getJoueur();
-
+        //Version plus robuste que l'ancienne, elle permet de mieux gerer les cartes spéciales comme +2 ou PTT
         try {
             Couleur coul = Couleur.valueOf(couleur.toUpperCase());
             Carte carteAJouer;
@@ -255,7 +193,7 @@ public class ServeurUno {
             }
 
             // Mise à jour pour tous
-            envoyerTas(carteDansMain);
+            envoyerTas();
             connexion.envoyerCarteJouee(carteDansMain);
             connexion.envoyerMessageMain();
             connexion.envoyerListeJoueurs(getJoueursConnectes());
@@ -335,16 +273,6 @@ public class ServeurUno {
     tourSuivant();
     }
 
-    /*private void tourSuivant() {
-        //partie.finirTour();
-        Joueur joueur = partie.getJoueurCourant();
-        envoyerATous("@INFO C’est au tour de " + joueur.getNom() + ".");
-        ConnexionJoueurUno connexion = getConnexionJoueur(joueur.getNom());
-        connexion.envoyerMessageMain(); // On envoie la main a chaque fois qu'on passe au tour suivant
-        //on passe au tour suivant donc on applique les effets en debut de tour
-        partie.appliquerEffetsDebutTour();
-    }
-     */
     private void tourSuivant() {
         Joueur joueur = partie.getJoueurCourant();
         ConnexionJoueurUno connexion = getConnexionJoueur(joueur.getNom());
@@ -356,8 +284,8 @@ public class ServeurUno {
         }
 
         envoyerATous("@INFO C’est au tour de " + joueur.getNom() + ".");
-        connexion.envoyerMessageMain();
-        partie.appliquerEffetsDebutTour();
+        connexion.envoyerMessageMain(); // On envoie la main a chaque fois qu'on passe au tour suivant
+        partie.appliquerEffetsDebutTour(); //on passe au tour suivant donc on applique les effets en debut de tour
     }
 
     //appelé lorsuq'un joueur a 0 carte dans sa main
@@ -382,7 +310,7 @@ public class ServeurUno {
         }
     }
    */
-    public void envoyerTas(Carte carte){
+    /*public void envoyerTas(Carte carte){
         String valeur = "";
 
         if (carte instanceof CarteSimple simple) {
@@ -396,6 +324,16 @@ public class ServeurUno {
 
         for (ConnexionJoueurUno joueur : joueursConnectes) {
             joueur.envoyer(message);
+        }
+    }
+    */
+
+    public void envoyerTas(){
+        Carte sommet = partie.getTas().sommet();
+        if (sommet != null) {
+            for (ConnexionJoueurUno joueur : joueursConnectes) {
+                joueur.envoyerTas(sommet);
+            }
         }
     }
 

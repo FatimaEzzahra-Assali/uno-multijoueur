@@ -259,7 +259,7 @@ public class ConnexionJoueurUno {
             serveur.envoyerATous("@DEMARRER " + this.getPseudo() + " à lancé une partie.");
             envoyerListeJoueurs(serveur.getJoueursConnectes());
             serveur.lancerPartie();
-            envoyerTas();
+            serveur.envoyerTas();
     }
 
     private void traiterTO_ALL(String message) {
@@ -350,22 +350,15 @@ public class ConnexionJoueurUno {
     }
 
     /*Gestion du protocole pour le tas
+    * voir fonction toMessageTas
     * */
-    public void envoyerTas(){
-        if (joueur == null) {
-            envoyer("@ERREUR Vous n'êtes pas connecté au jeu.");
-            return;
-        }
+    public void envoyerTas(Carte carte) {
+        String valeur = (carte instanceof CarteSimple simple) ? String.valueOf(simple.getValeur()) :
+                (carte instanceof CartePlus2) ? "+2" : "?";
+        envoyer("@TAS " + carte.getCouleur() + " " + getClass().getSimpleName() + " [ " + valeur + " " + carte.getCouleur() + " ]");
 
-        Carte carte = serveur.getPartie().getTas().sommet();
-
-        if (carte == null) {
-            envoyer("@TAS Aucune carte dans le tas.");
-            return;
-        }
-        String message = "@TAS " + carte.getCouleur() + " " + carte.toString();
-        serveur.envoyerATous(message);
     }
+
 
     public void fermerConnexion() {
         try {
