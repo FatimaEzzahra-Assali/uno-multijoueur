@@ -103,6 +103,9 @@ public class Joueur  {
         */
         main.remove(carte);
         partie.getTas().poserCarte(carte);
+        if (!(carte instanceof CartePasseTonTour)) {
+            partie.setPttDejaApplique(false);
+        }
         //On appliquer l'effet de la carte
         carte.appliquerEffet(partie);
 

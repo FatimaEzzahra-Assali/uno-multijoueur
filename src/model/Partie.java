@@ -5,6 +5,7 @@ import java.util.List;
 public class Partie {
     private List<Joueur> joueurs;
     private int joueurCourantIndex;
+    private boolean pttDejaApplique = false;
     private boolean aJoueCeTour;
     private Pioche pioche;
     private Tas tas;
@@ -17,6 +18,7 @@ public class Partie {
         this.tas = tas;
         this.joueurCourantIndex = 0; // commence par le premier joueur
         this.aJoueCeTour = false;
+
 
         for (Joueur joueur : joueurs) {
             joueur.setPartie(this);
@@ -56,7 +58,12 @@ public class Partie {
     public void setAJoueCeTour(boolean aJoueCeTour) {
         this.aJoueCeTour = aJoueCeTour;
     }
-
+    public void setPttDejaApplique(boolean v) {
+        this.pttDejaApplique = v;
+    }
+    public boolean isPttDejaApplique() {
+        return pttDejaApplique;
+    }
 
     public void passerAuJoueurSuivant() {
         joueurCourantIndex = (joueurCourantIndex + 1) % joueurs.size();
@@ -99,8 +106,9 @@ public class Partie {
         // Récupère la carte jouée
         Carte derniereCarte = tas.sommet();
 
-        if (derniereCarte instanceof CartePasseTonTour) {
-            passerAuJoueurSuivant(); // saute le joueur suivant
+        if (derniereCarte instanceof CartePasseTonTour && !pttDejaApplique) {
+            passerAuJoueurSuivant();         // sauter une seule fois
+            pttDejaApplique = true;          // marquer que c'est appliqué
         }
 
         passerAuJoueurSuivant(); // joueur suivant joue
