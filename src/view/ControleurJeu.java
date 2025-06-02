@@ -99,6 +99,7 @@ public class ControleurJeu extends ControleurCommun {
             else if (message.startsWith("@INFO")) {
                 Platform.runLater(() -> gererTour(message));
             }
+            /*
             else if (message.startsWith("@VICTOIRE")) {
                 Platform.runLater(() -> {
                     String gagnant = message.substring(10).trim();
@@ -114,6 +115,7 @@ public class ControleurJeu extends ControleurCommun {
                     monTour = false;
                 });
             }
+            */
             else if (message.startsWith("@ERREUR")) {
                 Platform.runLater(() -> {
                     afficherInfo(message.replace("@ERREUR", "").trim(), true);
@@ -131,6 +133,9 @@ public class ControleurJeu extends ControleurCommun {
                     boutonPioche.setDisable(true);
                     boutonPoseCarte.setDisable(true);
                 });
+            }
+            else if (message.startsWith("@FIN_MANCHE")) {
+                Platform.runLater(() -> afficherSceneFin(message));
             }
 
         });
@@ -675,5 +680,8 @@ public class ControleurJeu extends ControleurCommun {
         transition.setOnFinished(e -> root.getChildren().remove(carteAnimee));
         transition.play();
     }
+
+
+
 
 }

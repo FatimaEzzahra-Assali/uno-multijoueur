@@ -71,4 +71,27 @@ public class ControleurCommun {
         }
     }
 
+    protected void afficherSceneFin(String message) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Fin.fxml"));
+
+            // ✅ Création manuelle du contrôleur
+            ControleurFin controleurFin = new ControleurFin(stage);
+            loader.setController(controleurFin);  // On injecte manuellement
+
+            Parent root = loader.load();
+
+
+            String gagnant = message.replace("@FIN_MANCHE", "").trim();
+            controleurFin.setGagnant(gagnant);
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
