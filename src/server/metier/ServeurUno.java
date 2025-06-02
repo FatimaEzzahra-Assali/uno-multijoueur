@@ -357,6 +357,7 @@ public class ServeurUno {
             jdbc.DaoScore.enregistrerScore(connexion.getJoueur().getNom(), partieBDD.getId(), connexion.getJoueur().getScore());
         }
 
+        System.out.println(">> Envoi du message @FIN_MANCHE à tous les joueurs.");
         // 5. Informer tous les joueurs de la fin de la manche
         for (ConnexionJoueurUno connexion : joueursConnectes) {
             connexion.envoyerFinManche(this, gagnant);

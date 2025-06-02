@@ -441,9 +441,7 @@ public class ConnexionJoueurUno {
     }
 
     public void envoyerFinManche(ServeurUno serveur, Joueur gagnant){
-        for (ConnexionJoueurUno c : serveur.getJoueursConnectes()) {
-            c.envoyer("@FIN_MANCHE Le gagnant de cette manche est : " + gagnant.getNom() + " avec " + gagnant.getScore() + " points.");
-        }
+        this.envoyer("@FIN_MANCHE Le gagnant de cette manche est : " + gagnant.getNom() + " avec " + gagnant.getScore() + " points.");
     }
 
 
