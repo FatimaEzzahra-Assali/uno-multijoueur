@@ -440,9 +440,9 @@ public class ConnexionJoueurUno {
         envoyer(sb.toString());
     }
 
-    public void envoyerFinManche(){
+    public void envoyerFinManche(Joueur gagnant){
         for(ConnexionJoueurUno c : serveur.getJoueursConnectes()){
-            c.envoyer("@FIN_MANCHE");
+            c.envoyer("@FIN_MANCHE Le gagnant de cette manche est : " + gagnant.getNom() + " avec " + gagnant.getScore() + " points.");
         }
     }
 

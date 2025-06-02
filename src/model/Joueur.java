@@ -8,6 +8,7 @@ public class Joueur  {
     private List<Carte> main;
     private boolean aDitUno;
     private Partie partie;
+    private int score;
 
     public Joueur(String nom) {
         this.nom = nom;
@@ -25,6 +26,10 @@ public class Joueur  {
 
     public void ajouterCarte(Carte carte) {
         main.add(carte);
+    }
+
+    public int getScore() {
+        return score;
     }
 
     /*
@@ -144,6 +149,14 @@ public class Joueur  {
 
     public void setPartie(Partie partie) {
         this.partie = partie;
+    }
+
+    public void ajouterScore(int points) {
+        this.score += points;
+    }
+
+    public void resetScore() {
+        this.score = 0;
     }
 
     @Override

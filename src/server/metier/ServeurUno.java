@@ -202,7 +202,7 @@ public class ServeurUno {
             if (joueur.getMain().isEmpty()) {
                 int scoreGagnant = calculerScoreGagnant(joueur);
                 connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
-                finirManche();
+                finirManche(joueur);
                 return;
             }
 
@@ -290,7 +290,7 @@ public class ServeurUno {
     }
 
     //appelé lorsuq'un joueur a 0 carte dans sa main
-    public void finirManche() {
+    /*public void finirManche() {
         setPartieEnCours(false);
 
         // 1. Enregistrer la partie
@@ -319,6 +319,47 @@ public class ServeurUno {
 
         setPartie(null);
         joueursConnectes.clear();
+    }*/
+    public void finirManche(Joueur gagnant) {
+        setPartieEnCours(false);
+
+        // 1. Enregistrer la partie dans la BDD
+        jdbc.metier.PartieBDD partieBDD = jdbc.DaoPartie.creerNouvellePartie();
+
+
+        if (gagnant == null) {
+            System.err.println("Erreur : aucun joueur n’a fini la manche.");
+            return;
+        }
+
+        // 3. Calculer le score à attribuer au gagnant
+        int scoreTotal = 0;
+        for (ConnexionJoueurUno connexion : joueursConnectes) {
+            Joueur joueur = connexion.getJoueur();
+            if (joueur != gagnant) {
+                for (Carte carte : joueur.getMain()) {
+                    if (carte instanceof CarteSimple simple) {
+                        scoreTotal += simple.getValeur();
+                    } else if (carte instanceof CartePlus2 || carte instanceof CartePasseTonTour) {
+                        scoreTotal += 10;
+                    }
+                    // Tu peux ajouter d’autres cartes spéciales ici si besoin
+                }
+            }
+        }
+
+        // 4. Mettre à jour le score du gagnant en mémoire et en BDD
+        gagnant.ajouterScore(scoreTotal);
+        assert partieBDD != null;
+        jdbc.DaoScore.enregistrerScore(gagnant.getNom(), partieBDD.getId(), scoreTotal);
+
+        // 5. Informer tous les joueurs de la fin de la manche
+        for (ConnexionJoueurUno connexion : joueursConnectes) {
+            connexion.envoyerFinManche(gagnant);
+        }
+
+        // 6. Réinitialiser la partie (mais pas les joueurs connectés)
+        setPartie(null);
     }
 
     /* public void finirManche() {
