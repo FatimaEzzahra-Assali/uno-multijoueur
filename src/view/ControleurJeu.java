@@ -1,14 +1,21 @@
 package view;
 
+import javafx.animation.PauseTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import network.ClientUno;
 
 import java.io.FileInputStream;
@@ -50,6 +57,9 @@ public class ControleurJeu extends ControleurCommun {
     private String tasValeur = null;
     private int tailleMainPrecedente = -1;
     private boolean premierTas = true;
+    private boolean animationAPiocher = false;
+    private List<String> cartesInitiales = new ArrayList<>();
+    private boolean distributionEnCours = false;
 
 
     private String pseudo;
@@ -200,6 +210,7 @@ public class ControleurJeu extends ControleurCommun {
             }
 
             if (tasValeur.equals("+2")) tasValeur = "12";
+            if (tasValeur.equals("?")) tasValeur = "PTT";
 
             String imagePath = "/images/cartes/carte_" + tasValeur + "_" + tasCouleur + ".png";
             System.out.println(imagePath);
@@ -256,7 +267,9 @@ public class ControleurJeu extends ControleurCommun {
                         // Ajouter un effet visuel sur la carte sélectionnée
                         carteImage.setStyle("-fx-effect: dropshadow(gaussian, yellow, 10, 0.5, 0, 0);");
                     });
-                    mainJoueur.getChildren().add(carteImage);
+                    if (!distributionEnCours) {
+                        mainJoueur.getChildren().add(carteImage);
+                    }
                     int tailleApres = mainJoueur.getChildren().size();
 
 
@@ -276,9 +289,29 @@ public class ControleurJeu extends ControleurCommun {
 
         if (tailleMainPrecedente != -1 && tailleApres == tailleMainPrecedente + 2 && !monTour) {
             afficherInfo("Vous avez pioché 2 cartes à cause d'un +2 !", false);
+
+            Platform.runLater(() -> {
+                animerPiocheVersMain();
+                PauseTransition pause = new PauseTransition(Duration.millis(300));
+                pause.setOnFinished(e -> animerPiocheVersMain());
+                pause.play();
+            });
         }
 
+        if (tailleMainPrecedente == -1 && tailleApres == 7) {
+            // Première distribution
+            cartesInitiales.clear();
+            cartesInitiales.addAll(List.of(cartes));
+            mainJoueur.getChildren().clear(); // vide la main visuelle
+            distributionEnCours = true;
+            Platform.runLater(() -> distribuerCartesProgressivement(0));
+            return;
+        }
         tailleMainPrecedente = tailleApres;
+        if (animationAPiocher) {
+            animerPiocheVersMain();
+            animationAPiocher = false;
+        }
         verifierSiCarteJouable();
     }
 
@@ -327,6 +360,16 @@ public class ControleurJeu extends ControleurCommun {
 // Ajoute les cartes dos
             HBox cartesCachees = genererCartesCachees(nbCartes);
             cible.getChildren().add(cartesCachees);
+            // Animation de distribution vers la zone du joueur (7 cartes)
+            if (distributionEnCours) {
+                for (int i = 0; i < 7; i++) {
+                    int delayMs = i * 400;
+                    PauseTransition pause = new PauseTransition(Duration.millis(delayMs));
+                    VBox finalCible = cible;
+                    pause.setOnFinished(e -> animerDistributionVersZone(finalCible));
+                    pause.play();
+                }
+            }
         }
     }
 
@@ -341,9 +384,10 @@ public class ControleurJeu extends ControleurCommun {
         cartePoseeCeTour = false;
         if (joueurActuel.contains(pseudo)) {
             monTour = true;
+            cartePoseeCeTour = false;
             boutonPoseCarte.setDisable(false);
             boutonFinTour.setDisable(true);
-
+            verifierSiCarteJouable(); // <--- AJOUT IMPORTANT
             labelTour.setText("C’est ton tour !");
         } else {
             monTour = false;
@@ -432,7 +476,7 @@ public class ControleurJeu extends ControleurCommun {
             }
         }
 
-        boutonPioche.setDisable(peutJouer);
+        boutonPioche.setDisable(false);
     }
 
     @FXML
@@ -442,9 +486,9 @@ public class ControleurJeu extends ControleurCommun {
             return;
         }
 
-        ClientUno.getInstance().piocher(); // envoie au serveur
+        animationAPiocher = true; // ✅ Signaler qu’on doit animer
+        ClientUno.getInstance().piocher();
 
-        // On empêche tout en local immédiatement
         monTour = false;
         boutonPioche.setDisable(true);
         boutonPoseCarte.setDisable(true);
@@ -470,6 +514,166 @@ public class ControleurJeu extends ControleurCommun {
             } catch (InterruptedException ignored) {}
             Platform.runLater(() -> labelInfos.setText(""));
         }).start();
+    }
+
+    /*
+    private void animerPiocheVersMain() {
+        // Image temporaire depuis la pioche
+        ImageView carteAnimee = new ImageView(new Image(getClass().getResource("/images/cartes/carte_dos.png").toExternalForm()));
+        carteAnimee.setFitWidth(65);
+        carteAnimee.setFitHeight(100);
+
+        // Position initiale = position de la pioche
+        carteAnimee.setLayoutX(cartePioche.localToScene(cartePioche.getBoundsInLocal()).getMinX());
+        carteAnimee.setLayoutY(cartePioche.localToScene(cartePioche.getBoundsInLocal()).getMinY());
+
+        // Ajouter à la scène racine
+        ((Pane) mainJoueur.getScene().getRoot()).getChildren().add(carteAnimee);
+
+        // Calcul de la destination (au centre de la main du joueur)
+        double destinationX = mainJoueur.localToScene(mainJoueur.getBoundsInLocal()).getMinX() + mainJoueur.getWidth() / 2 - 32;
+        double destinationY = mainJoueur.localToScene(mainJoueur.getBoundsInLocal()).getMinY();
+
+        // Crée la transition
+        TranslateTransition transition = new TranslateTransition();
+        transition.setNode(carteAnimee);
+        transition.setDuration(Duration.millis(500));
+        transition.setFromX(carteAnimee.getLayoutX());
+        transition.setFromY(carteAnimee.getLayoutY());
+        transition.setToX(destinationX - carteAnimee.getLayoutX());
+        transition.setToY(destinationY - carteAnimee.getLayoutY());
+
+        // Après l’animation, retirer la carte temporaire
+        transition.setOnFinished(e -> ((Pane) mainJoueur.getScene().getRoot()).getChildren().remove(carteAnimee));
+        transition.play();
+    }
+     */
+
+    private void animerPiocheVersMain() {
+        // Crée une carte dos temporaire
+        ImageView carteAnimee = new ImageView(new Image(getClass().getResource("/images/cartes/carte_dos.png").toExternalForm()));
+        carteAnimee.setFitWidth(65);
+        carteAnimee.setFitHeight(100);
+
+        // Récupère la racine
+        AnchorPane root = (AnchorPane) mainJoueur.getScene().getRoot();
+        root.getChildren().add(carteAnimee);
+
+        // Position de départ (centre de cartePioche dans la scène)
+        Bounds piocheBoundsScene = cartePioche.localToScene(cartePioche.getBoundsInLocal());
+        double startX = piocheBoundsScene.getMinX() + piocheBoundsScene.getWidth() / 2;
+        double startY = piocheBoundsScene.getMinY() + piocheBoundsScene.getHeight() / 2;
+
+        // Position de destination (centre de mainJoueur dans la scène)
+        Bounds mainBoundsScene = mainJoueur.localToScene(mainJoueur.getBoundsInLocal());
+        double endX = mainBoundsScene.getMinX() + mainBoundsScene.getWidth() / 2;
+        double endY = mainBoundsScene.getMinY() + mainBoundsScene.getHeight() / 2;
+
+        // Convertir les deux points dans le repère local du root
+        Point2D startInRoot = root.sceneToLocal(startX, startY);
+        Point2D endInRoot = root.sceneToLocal(endX, endY);
+
+        // Place la carte au point de départ
+        carteAnimee.setLayoutX(startInRoot.getX() - carteAnimee.getFitWidth() / 2);
+        carteAnimee.setLayoutY(startInRoot.getY() - carteAnimee.getFitHeight() / 2);
+
+        // Crée la transition
+        TranslateTransition transition = new TranslateTransition(Duration.millis(600), carteAnimee);
+        transition.setToX(endInRoot.getX() - startInRoot.getX());
+        transition.setToY(endInRoot.getY() - startInRoot.getY());
+
+        // Supprime la carte après animation
+        transition.setOnFinished(e -> root.getChildren().remove(carteAnimee));
+        transition.play();
+    }
+
+    private void distribuerCartesInitiales(int nombre) {
+        if (nombre <= 0) return;
+
+        animerPiocheVersMain();
+
+        PauseTransition pause = new PauseTransition(Duration.millis(250));
+        pause.setOnFinished(e -> distribuerCartesInitiales(nombre - 1));
+        pause.play();
+    }
+
+    private void distribuerCartesProgressivement(int index) {
+        if (index >= cartesInitiales.size()) {
+            distributionEnCours = false;
+            return;
+        }
+
+        // Anime une pioche
+        animerPiocheVersMain();
+
+        // Affiche la carte correspondante après un petit délai (après l'animation)
+        PauseTransition delay = new PauseTransition(Duration.millis(300));
+        delay.setOnFinished(e -> {
+            ajouterCarteAlaMain(cartesInitiales.get(index));
+            distribuerCartesProgressivement(index + 1); // récursion
+        });
+        delay.play();
+    }
+
+    private void ajouterCarteAlaMain(String c) {
+        String[] parts = c.replace("(", "").replace(")", "").split(";");
+        if (parts.length != 2) return;
+
+        String rawValeur = parts[0];
+        String valeur = rawValeur.equals("+2") ? "12" : rawValeur;
+        String couleur = capitalizeFirstLetter(parts[1]);
+
+        String imagePath = "/images/cartes/carte_" + valeur + "_" + couleur + ".png";
+        try {
+            Image image = new Image(imagePath);
+            ImageView carteImage = new ImageView(image);
+            carteImage.setFitHeight(100);
+            carteImage.setFitWidth(65);
+
+            carteImage.setOnMouseClicked(e -> {
+                if (!monTour) return;
+                valeurCarteSelectionnee = valeur;
+                couleurCarteSelectionnee = parts[1];
+                for (javafx.scene.Node node : mainJoueur.getChildren()) node.setStyle("");
+                carteImage.setStyle("-fx-effect: dropshadow(gaussian, yellow, 10, 0.5, 0, 0);");
+            });
+
+            mainJoueur.getChildren().add(carteImage);
+
+        } catch (Exception e) {
+            System.err.println("Erreur chargement image : " + imagePath);
+        }
+    }
+
+    private void animerDistributionVersZone(VBox destinationZone) {
+        ImageView carteAnimee = new ImageView(new Image(getClass().getResource("/images/cartes/carte_dos.png").toExternalForm()));
+        carteAnimee.setFitWidth(65);
+        carteAnimee.setFitHeight(100);
+
+        AnchorPane root = (AnchorPane) mainJoueur.getScene().getRoot();
+        root.getChildren().add(carteAnimee);
+
+        Bounds piocheBoundsScene = cartePioche.localToScene(cartePioche.getBoundsInLocal());
+        Bounds destBoundsScene = destinationZone.localToScene(destinationZone.getBoundsInLocal());
+
+        Point2D start = root.sceneToLocal(
+                piocheBoundsScene.getMinX() + piocheBoundsScene.getWidth() / 2,
+                piocheBoundsScene.getMinY() + piocheBoundsScene.getHeight() / 2
+        );
+
+        Point2D end = root.sceneToLocal(
+                destBoundsScene.getMinX() + destBoundsScene.getWidth() / 2,
+                destBoundsScene.getMinY() + destBoundsScene.getHeight() / 2
+        );
+
+        carteAnimee.setLayoutX(start.getX() - carteAnimee.getFitWidth() / 2);
+        carteAnimee.setLayoutY(start.getY() - carteAnimee.getFitHeight() / 2);
+
+        TranslateTransition transition = new TranslateTransition(Duration.millis(500), carteAnimee);
+        transition.setToX(end.getX() - start.getX());
+        transition.setToY(end.getY() - start.getY());
+        transition.setOnFinished(e -> root.getChildren().remove(carteAnimee));
+        transition.play();
     }
 
 }
