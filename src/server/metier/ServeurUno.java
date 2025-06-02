@@ -198,14 +198,6 @@ public class ServeurUno {
             connexion.envoyerMessageMain();
             connexion.envoyerListeJoueurs(getJoueursConnectes());
 
-            // Si victoire
-            if (joueur.getMain().isEmpty()) {
-                int scoreGagnant = calculerScoreGagnant(joueur);
-                connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
-                finirManche(joueur);
-                return;
-            }
-
         } catch (UNOException e) {
             connexion.envoyerMessageErreur(e.getMessage());
         } catch (Exception e) {
@@ -271,6 +263,17 @@ public class ServeurUno {
         } catch (UNOException e) {
             connexion.envoyerMessageErreur(e.getMessage());
         }
+        // Si victoire
+        if (joueur.getMain().isEmpty()) {
+            int scoreGagnant = calculerScoreGagnant(joueur);
+            connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
+            System.out.println("JE FAIS AFFICHER FIN MANCHE");
+            for (ConnexionJoueurUno c : joueursConnectes) {
+                c.envoyerFinManche(this, joueur);
+            }
+            //finirManche(joueur);
+            return;
+        }
     tourSuivant();
     }
 
@@ -321,7 +324,7 @@ public class ServeurUno {
         joueursConnectes.clear();
     }*/
     public void finirManche(Joueur gagnant) {
-        setPartieEnCours(false);
+       // setPartieEnCours(false);
 
         // 1. Enregistrer la partie dans la BDD
         jdbc.metier.PartieBDD partieBDD = jdbc.DaoPartie.creerNouvellePartie();
@@ -357,7 +360,7 @@ public class ServeurUno {
             jdbc.DaoScore.enregistrerScore(connexion.getJoueur().getNom(), partieBDD.getId(), connexion.getJoueur().getScore());
         }
 
-        System.out.println(">> Envoi du message @FIN_MANCHE à tous les joueurs.");
+        System.err.println(">> Envoi du message @FIN_MANCHE à tous les joueurs.");
         // 5. Informer tous les joueurs de la fin de la manche
         for (ConnexionJoueurUno connexion : joueursConnectes) {
             connexion.envoyerFinManche(this, gagnant);
