@@ -358,7 +358,7 @@ public class ConnexionJoueurUno {
     */
     public void envoyerTas(Carte carte) {
         String valeur = (carte instanceof CarteSimple simple) ? String.valueOf(simple.getValeur()) :
-                (carte instanceof CartePlus2) ? "+2" : "?";
+                (carte instanceof CartePlus2) ? "+2" : "PTT";
         envoyer("@TAS " + carte.getCouleur() + " " + getClass().getSimpleName() + " [ " + valeur + " " + carte.getCouleur() + " ]");
     }
 
@@ -441,9 +441,7 @@ public class ConnexionJoueurUno {
     }
 
     public void envoyerFinManche(Joueur gagnant){
-        for(ConnexionJoueurUno c : serveur.getJoueursConnectes()){
-            c.envoyer("@FIN_MANCHE Le gagnant de cette manche est : " + gagnant.getNom() + " avec " + gagnant.getScore() + " points.");
-        }
+        envoyer("@FIN_MANCHE Le gagnant de cette manche est : " + gagnant.getNom() + " avec " + gagnant.getScore() + " points.");
     }
 
 
