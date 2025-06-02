@@ -350,8 +350,12 @@ public class ServeurUno {
 
         // 4. Mettre à jour le score du gagnant en mémoire et en BDD
         gagnant.ajouterScore(scoreTotal);
+
+        //On enregistre dans la bdd les scores de chaque joueur
         assert partieBDD != null;
-        jdbc.DaoScore.enregistrerScore(gagnant.getNom(), partieBDD.getId(), scoreTotal);
+        for(ConnexionJoueurUno connexion : joueursConnectes){
+            jdbc.DaoScore.enregistrerScore(connexion.getJoueur().getNom(), partieBDD.getId(), connexion.getJoueur().getScore());
+        }
 
         // 5. Informer tous les joueurs de la fin de la manche
         for (ConnexionJoueurUno connexion : joueursConnectes) {

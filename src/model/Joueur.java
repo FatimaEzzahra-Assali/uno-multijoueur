@@ -8,7 +8,7 @@ public class Joueur  {
     private List<Carte> main;
     private boolean aDitUno;
     private Partie partie;
-    private int score;
+    private int score = 0;
 
     public Joueur(String nom) {
         this.nom = nom;
