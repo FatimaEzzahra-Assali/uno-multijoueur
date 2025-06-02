@@ -359,7 +359,7 @@ public class ServeurUno {
 
         // 5. Informer tous les joueurs de la fin de la manche
         for (ConnexionJoueurUno connexion : joueursConnectes) {
-            connexion.envoyerFinManche(gagnant);
+            connexion.envoyerFinManche(this, gagnant);
         }
 
         // 6. Réinitialiser la partie (mais pas les joueurs connectés)
