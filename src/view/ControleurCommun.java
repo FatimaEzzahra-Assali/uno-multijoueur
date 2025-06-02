@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import network.ClientUno;
 
 import java.io.IOException;
 
@@ -18,6 +19,8 @@ public class ControleurCommun {
     @FXML private Button boutonMessages;
     @FXML private Button boutonQuitter;
     @FXML private Button boutonJeu;
+    @FXML private Button boutonDeconnexion;
+    @FXML private Button boutonAccueil;
 
     public ControleurCommun(Stage stage) {
         this.stage = stage;
@@ -75,9 +78,8 @@ public class ControleurCommun {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Fin.fxml"));
 
-            // ✅ Création manuelle du contrôleur
             ControleurFin controleurFin = new ControleurFin(stage);
-            loader.setController(controleurFin);  // On injecte manuellement
+            loader.setController(controleurFin);
 
             Parent root = loader.load();
 
@@ -90,6 +92,25 @@ public class ControleurCommun {
             stage.show();
 
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    protected void deconnexion() {
+        ClientUno.getInstance().envoyer("@DECONNEXION");
+        stage.close();
+    }
+
+    @FXML
+    private void retourAccueil() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Accueil.fxml"));
+            AccueilController ctrl =  new AccueilController(stage);
+            loader.setController(ctrl);
+            Parent root = loader.load();
+            stage.setScene(new Scene(root));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
