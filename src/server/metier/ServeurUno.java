@@ -271,7 +271,7 @@ public class ServeurUno {
             for (ConnexionJoueurUno c : joueursConnectes) {
                 c.envoyerFinManche(this, joueur);
             }
-            //finirManche(joueur);
+            finirManche(joueur);
             return;
         }
     tourSuivant();
