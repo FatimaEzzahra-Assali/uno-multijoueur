@@ -323,7 +323,7 @@ public class ServeurUno {
         setPartie(null);
         joueursConnectes.clear();
     }*/
-    /*public void finirManche(Joueur gagnant) {
+    public void finirManche(Joueur gagnant) {
 
         // 1. Enregistrer la partie dans la BDD
         jdbc.metier.PartieBDD partieBDD = jdbc.DaoPartie.creerNouvellePartie();
@@ -381,66 +381,6 @@ public class ServeurUno {
         }
 
         setPartieEnCours(false); // <-- C’est important ici
-        setPartie(null);
-    }*/
-    public void finirManche(Joueur gagnant) {
-
-        // 1. Enregistrer la partie dans la BDD
-        jdbc.metier.PartieBDD partieBDD = jdbc.DaoPartie.creerNouvellePartie();
-
-        if (gagnant == null) {
-            System.err.println("Erreur : aucun joueur n’a fini la manche.");
-            return;
-        }
-
-        // 2. Calculer le score de la manche pour le gagnant
-        int scoreManche = 0;
-        for (ConnexionJoueurUno connexion : joueursConnectes) {
-            Joueur joueur = connexion.getJoueur();
-            if (!joueur.equals(gagnant)) {
-                for (Carte carte : joueur.getMain()) {
-                    if (carte instanceof CarteSimple simple) {
-                        scoreManche += simple.getValeur();
-                    } else if (carte instanceof CartePlus2 || carte instanceof CartePasseTonTour) {
-                        scoreManche += 10;
-                    }
-                }
-            }
-        }
-
-        // 3. Mettre à jour le score du gagnant en mémoire
-        gagnant.ajouterScore(scoreManche);
-
-        // 4. Enregistrer scores cumulés en BDD
-        assert partieBDD != null;
-        for (ConnexionJoueurUno connexion : joueursConnectes) {
-            Joueur joueur = connexion.getJoueur();
-
-            // Récupération de l'ancien score cumulé
-            jdbc.metier.JoueurBDD joueurBDD = jdbc.DaoJoueur.getOrCreateJoueur(joueur.getNom());
-            int ancienScore = jdbc.DaoScore.getScoreTotalDuJoueur(joueurBDD.getId());
-
-            // Score à enregistrer = ancien + manche si gagnant, sinon juste l'ancien
-            int scoreTotal = joueur.equals(gagnant) ? ancienScore + scoreManche : ancienScore;
-
-            jdbc.DaoScore.enregistrerScore(joueur.getNom(), partieBDD.getId(), scoreTotal);
-        }
-
-        System.err.println(">> Envoi du message @FIN_MANCHE à tous les joueurs.");
-
-        // 5. Informer tous les joueurs de la fin de la manche
-        for (ConnexionJoueurUno connexion : joueursConnectes) {
-            connexion.envoyerFinManche(this, gagnant);
-        }
-
-        // 6. Réinitialiser les joueurs
-        for (ConnexionJoueurUno c : joueursConnectes) {
-            c.getJoueur().getMain().clear();
-            c.getJoueur().resetUno();
-            c.getJoueur().setPartie(null);
-        }
-
-        setPartieEnCours(false);
         setPartie(null);
     }
 
