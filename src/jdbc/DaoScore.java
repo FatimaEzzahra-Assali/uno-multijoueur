@@ -114,4 +114,19 @@ public class DaoScore {
             e.printStackTrace();
         }
     }
+
+    public static int getScoreTotalDuJoueur(int idJoueur) {
+        String sql = "SELECT SUM(score) FROM Score WHERE id_joueur = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idJoueur);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1); // total actuel
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
