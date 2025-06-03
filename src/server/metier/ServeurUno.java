@@ -26,38 +26,27 @@ public class ServeurUno {
     public boolean isPartieEnCours() {
         return partieEnCours;
     }
-
-    public void setPartieEnCours(boolean partieEnCours) {
-        this.partieEnCours = partieEnCours;
-    }
-
+    public void setPartieEnCours(boolean partieEnCours) {this.partieEnCours = partieEnCours;}
     public Partie getPartie() {
         return partie;
     }
-
     public void setPartie(Partie partie) {
         this.partie = partie;
     }
-
     public ArrayList<ConnexionJoueurUno> getJoueursConnectes() {
         return joueursConnectes;
     }
-
     public int getPort() {
         return port;
     }
-
     public void setPort(int port) {
         this.port = port;
     }
-
     public boolean add(ConnexionJoueurUno joueur) throws ServeurUnoException {
         if (joueur == null)
             throw new ServeurUnoException("La connexion utilisateur vaut null");
-
         return joueursConnectes.add(joueur);
     }
-
     public boolean remove(ConnexionJoueurUno utilisateur) throws ServeurUnoException {
         if (utilisateur == null)
             throw new ServeurUnoException("La connexion utilisateur vaut null");
@@ -77,7 +66,7 @@ public class ServeurUno {
     }
 
     /*
-     * Un joueur va pouvoir lancer une partie a condition qu'il y a au moins deux joueurs connectés au serveur
+     * Un joueur va pouvoir lancer une partie a condition qu'il y ait au moins deux joueurs connectés au serveur
      * et qu'il est le premier à s'être connecté au serveur.
      */
     public void lancerPartie() {
@@ -103,45 +92,8 @@ public class ServeurUno {
         }
         tourSuivant();
     }
-    /*
-    public void jouerCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
-        if (!isPartieEnCours()) {
-            connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
-            return;
-        }
-        Joueur joueur = connexion.getJoueur();
-        try {
-            Couleur coul = Couleur.valueOf(couleur);
-            int val = Integer.parseInt(valeur);
-            Carte carteAJouer = joueur.trouverCarteDansMain(coul, val); //on cherche la carte dans la main du joueur
 
-            joueur.poserCarte(carteAJouer, partie);
-            envoyerTas(carteAJouer);
-            connexion.envoyerCarteJouee(carteAJouer);
-            //on envoie la main du joueur à chaque fois qu'il joue une carte
-            connexion.envoyerMessageMain();
-            connexion.envoyerListeJoueurs(getJoueursConnectes());
-            //envoyerATous("@INFO " + joueur.getNom() + " a joué " + couleur + " " + valeur);
 
-            //si le joueur n'a plus de carte après avoir posé sa dernière carte, il a gagné
-            //alors, FIN DE PARTIE
-            if (joueur.getMain().isEmpty()) {
-                int scoreGagnant = calculerScoreGagnant(joueur); //on aura besion du score pour la gestion de la base de données
-                connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
-                // A VOIR finirPartie(); //on fini la partie (voir la fonction plus bas)
-                return;
-            }
-            //Ces 2 là, je les ai enlevés, c'est au joueur de faire la demande de passer au tour suivant (et c'est là qu'on gère le uno?)
-            //partie.finirTour();
-            //tourSuivant();
-        } catch (UNOException e) {
-            connexion.envoyerMessageErreur(e.getMessage());
-        } catch (Exception e) {
-            connexion.envoyerMessageErreur("Carte invalide");
-        }
-
-    }
-     */
     public void jouerCarte(ConnexionJoueurUno connexion, String couleur, String valeur) {
         if (!isPartieEnCours()) {
             connexion.envoyerMessageErreur("La partie n’a pas encore commencé.");
@@ -187,7 +139,7 @@ public class ServeurUno {
             // Poser la carte
             joueur.poserCarte(carteDansMain, partie);
 
-            // Si c’est une carte +2, activer l’effet sans empilement
+            // Si c’est une carte +2, alors activer l’effet sans empilement
             if (carteDansMain instanceof CartePlus2) {
                 partie.setActionPlus2Actif(true);
             }
@@ -267,10 +219,6 @@ public class ServeurUno {
         if (joueur.getMain().isEmpty()) {
             int scoreGagnant = calculerScoreGagnant(joueur);
             connexion.envoyerMessageVictoire(this, joueur, scoreGagnant);
-            System.out.println("JE FAIS AFFICHER FIN MANCHE");
-            for (ConnexionJoueurUno c : joueursConnectes) {
-                c.envoyerFinManche(this, joueur);
-            }
             finirManche(joueur);
             return;
         }
@@ -287,45 +235,15 @@ public class ServeurUno {
             return; // empêche double appel après encaisse()
         }
 
-        envoyerATous("@INFO C’est au tour de " + joueur.getNom() + ".");
+        connexion.envoyerMessageInfo("C’est au tour de " + joueur.getNom() + ".");
         connexion.envoyerMessageMain(); // On envoie la main a chaque fois qu'on passe au tour suivant
         partie.appliquerEffetsDebutTour(); //on passe au tour suivant donc on applique les effets en debut de tour
     }
 
-    //appelé lorsuq'un joueur a 0 carte dans sa main
-    /*public void finirManche() {
-        setPartieEnCours(false);
 
-        // 1. Enregistrer la partie
-        jdbc.metier.PartieBDD partieBDD = jdbc.DaoPartie.creerNouvellePartie();
-
-        // 2. Enregistrer les scores
-        for (ConnexionJoueurUno connexion : joueursConnectes) {
-            Joueur j = connexion.getJoueur();
-            int score = 0;
-            for (Carte c : j.getMain()) {
-                if (c instanceof CarteSimple simple) {
-                    score += simple.getValeur();
-                } else if (c instanceof CartePlus2 || c instanceof CartePasseTonTour) {
-                    score += 10;
-                }
-            }
-
-            // Enregistrement score en BDD
-            jdbc.DaoScore.enregistrerScore(j.getNom(), partieBDD.getId(), score);
-        }
-
-        // 3. Envoyer fin de manche à tous
-        for (ConnexionJoueurUno joueur : joueursConnectes) {
-            joueur.envoyerFinManche();
-        }
-
-        setPartie(null);
-        joueursConnectes.clear();
-    }*/
     public void finirManche(Joueur gagnant) {
 
-        // 1. Enregistrer la partie dans la BDD
+        // On enregistre la partie dans la BDD
         jdbc.metier.PartieBDD partieBDD = jdbc.DaoPartie.creerNouvellePartie();
 
 
@@ -334,7 +252,7 @@ public class ServeurUno {
             return;
         }
 
-        // 3. Calculer le score à attribuer au gagnant
+        // On calcule le score à attribuer au gagnant
         int scoreTotal = 0;
         for (ConnexionJoueurUno connexion : joueursConnectes) {
             Joueur joueur = connexion.getJoueur();
@@ -350,7 +268,7 @@ public class ServeurUno {
             }
         }
 
-        // 4. Mettre à jour le score du gagnant en mémoire et en BDD
+        // Mise à jour le score du gagnant en mémoire et en BDD
         gagnant.ajouterScore(scoreTotal);
 
         //On enregistre dans la bdd les scores de chaque joueur
@@ -362,10 +280,11 @@ public class ServeurUno {
         }
 
         System.err.println(">> Envoi du message @FIN_MANCHE à tous les joueurs.");
-        // 5. Informer tous les joueurs de la fin de la manche
+        // Informe tous les joueurs de la fin de la manche
         for (ConnexionJoueurUno connexion : joueursConnectes) {
-            connexion.envoyerFinManche(this, gagnant);
+            connexion.envoyerFinManche(gagnant);
         }
+
 
         for (ConnexionJoueurUno c : joueursConnectes) {
             c.getJoueur().getMain().clear();     // Vide la main du joueur
@@ -381,47 +300,16 @@ public class ServeurUno {
         }
 
         setPartieEnCours(false); // <-- C’est important ici
+
+        //Réinitialise la partie (mais pas les joueurs connectés)
         setPartie(null);
     }
-
-    /* public void finirManche() {
-        setPartieEnCours(false);
-        setPartie(null);
-        for (ConnexionJoueurUno joueur : joueursConnectes) {
-            joueur.envoyerFinManche();
-        }
-        joueursConnectes.clear();
-    }*/
 
     public void envoyerATous(String message) {
         for (ConnexionJoueurUno joueur : joueursConnectes) {
             joueur.envoyer(message);
         }
     }
-
-    /*public void envoyerTas(Carte carte){
-        //on envoie le message a tout le monde
-        for (ConnexionJoueurUno joueur : joueursConnectes) {
-            joueur.envoyerTas();
-        }
-    }
-    public void envoyerTas(Carte carte){
-        String valeur = "";
-
-        if (carte instanceof CarteSimple simple) {
-            valeur = String.valueOf(simple.getValeur());
-        } else if (carte instanceof CartePlus2) {
-            valeur = "+2";
-        }
-        String couleur = carte.getCouleur().name();
-
-        String message = "@TAS " + couleur + " " + carte.getClass().getSimpleName() + " [ " + valeur + " " + couleur + " ]";
-
-        for (ConnexionJoueurUno joueur : joueursConnectes) {
-            joueur.envoyer(message);
-        }
-    }
-*/
 
     public void envoyerTas(Carte carte){
         if (carte != null) {
@@ -436,7 +324,7 @@ public class ServeurUno {
         for (String mot : motsCensures) {
             message = message.replace(mot, censure);
         }
-        // Et on parcours la liste des utilisateurs pour leur envoyer le message à chacun (sauf à soi-même)
+        // Et on parcourt la liste des utilisateurs pour leur envoyer le message à chacun (sauf à soi-même)
         for (ConnexionJoueurUno c : joueursConnectes) {
             /*if (c.equals(emetteur))
                 continue;
