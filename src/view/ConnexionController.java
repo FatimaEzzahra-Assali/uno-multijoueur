@@ -19,42 +19,6 @@ public class ConnexionController extends ControleurCommun{
     public ConnexionController(Stage stage) {
         super(stage);
     }
-    /*
-    @FXML
-    public void handleConnexion() {
-        String pseudo = pseudoField.getText().trim();
-
-        if (pseudo.isEmpty()) {
-            afficherAlerte("Erreur", "Veuillez entrer un pseudo.");
-            return;
-        }
-
-        try {
-            ClientUno client = ClientUno.getInstance();
-
-            // Si aucun client n'est encore instancié
-            if (client == null) {
-                client = new ClientUno();
-                ClientUno.setInstance(client);
-                client.setPseudo(pseudo);
-                client.envoyerConnexion();
-
-                client.setThreadClientUno(new ThreadClientUno(client));
-                client.getThreadClientUno().start();
-
-                System.out.println("Client connecté avec succès.");
-                afficherAccueil();
-            } else {
-                // Si déjà connecté, prévenir
-                afficherAlerte("Déjà connecté", "Vous êtes déjà connecté.");
-            }
-
-        } catch (Exception e) {
-            afficherAlerte("Erreur", "Connexion au serveur impossible.");
-            e.printStackTrace();
-        }
-    }
-    */
 
     @FXML
     public void handleConnexion() {

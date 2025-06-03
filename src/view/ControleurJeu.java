@@ -6,20 +6,16 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import network.ClientUno;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +74,7 @@ public class ControleurJeu extends ControleurCommun {
         boutonPoseCarte.setDisable(true);
         boutonPioche.setDisable(true);
         boutonPoseCarte.setDisable(true);
-        // Afficher l’image de dos
+        // Afficher l’image de dos du tas
         String imagePathDos = "/images/cartes/carte_dos.png";
         try {
             Image imageDos = new Image(getClass().getResource(imagePathDos).toExternalForm());
@@ -100,30 +96,13 @@ public class ControleurJeu extends ControleurCommun {
             else if (message.startsWith("@INFO")) {
                 Platform.runLater(() -> gererTour(message));
             }
-            /*
-            else if (message.startsWith("@VICTOIRE")) {
-                Platform.runLater(() -> {
-                    String gagnant = message.substring(10).trim();
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Victoire !");
-                    alert.setHeaderText(null);
-                    alert.setContentText(gagnant + " a gagné la partie !");
-                    alert.showAndWait();
-
-                    boutonFinTour.setDisable(true);
-                    boutonPoseCarte.setDisable(true);
-                    boutonPioche.setDisable(true);
-                    monTour = false;
-                });
-            }
-            */
             else if (message.startsWith("@ERREUR")) {
                 Platform.runLater(() -> {
                     afficherInfo(message.replace("@ERREUR", "").trim(), true);
                     // Si erreur de carte non jouable, on garde les boutons actifs
                     if (message.contains("Carte non jouable") && monTour && !cartePoseeCeTour) {
                         boutonPoseCarte.setDisable(false);
-                        verifierSiCarteJouable(); // réévalue si pioche doit être réactivée
+                        verifierSiCarteJouable(); //réévalue si pioche doit être réactivée
                     }
                 });
             }
@@ -145,23 +124,27 @@ public class ControleurJeu extends ControleurCommun {
     }
 
     private void mettreAJourJoueurs(String message) {
+        //On vide la liste actuelle des joueurs pour ne pas avoir deux fois les même joueurs
         joueurs.clear();
+        //On prend la liste des pseudos à partir du message reçu du serveur
         String[] tokens = message.substring(7).split(";");
+
+        // On ajoute chaque pseudo non vide à la liste des joueurs
         for (String j : tokens) {
             if (!j.isBlank()) joueurs.add(j);
         }
 
-        // Détermine les positions
+        //on prend les positions des joueurs dans la liste des joueurs
         int myIndex = joueurs.indexOf(pseudo);
         List<String> autres = new ArrayList<>(joueurs);
         autres.remove(pseudo);
-
+        //pour mettre à jour les labels d'affichage pour chaque position autour de la table
         labelBas.setText("Moi (" + pseudo + ")");
         labelHaut.setText(autres.size() > 0 ? autres.get(0) : "");
         labelGauche.setText(autres.size() > 1 ? autres.get(1) : "");
         labelDroite.setText(autres.size() > 2 ? autres.get(2) : "");
 
-        // Seul le joueur 0 (le premier connecté) voit le bouton
+        //la hôte c'est la personne qui s'est connecté en premier peut démarrer la partie
         if (!joueurs.isEmpty() && joueurs.get(0).equals(pseudo)) {
             boutonDemarrer.setVisible(true);
         } else {
@@ -182,8 +165,6 @@ public class ControleurJeu extends ControleurCommun {
 
             String contenu = parties[1].trim();
             String[] valeurCouleur = contenu.split(" ");
-
-            System.out.println(">>> Débogage valeurCouleur[]");
             for (int i = 0; i < valeurCouleur.length; i++) {
                 System.out.println("valeurCouleur[" + i + "] = '" + valeurCouleur[i] + "'");
             }
@@ -193,19 +174,17 @@ public class ControleurJeu extends ControleurCommun {
                 tasCouleur = valeurCouleur[0].trim().toLowerCase();
                 tasCouleur = capitalizeFirstLetter(tasCouleur);
 
-                // afficher l'image correspondante
                 String imagePath = "/images/cartes/carte_" + tasValeur + "_" + tasCouleur + ".png";
                 System.out.println(imagePath);
                 URL resource = getClass().getResource(imagePath);
                 if (resource == null) {
-                    System.err.println("⚠️ Image non trouvée : " + imagePath);
                     return;
                 }
                 carteTas.setImage(new Image(resource.toExternalForm()));
                 return;
             }
 
-            // Cas normal (valeur + couleur)
+            //Cas normal (valeur + couleur)
             if (premierTas) {
                 tasCouleur = capitalizeFirstLetter(valeurCouleur[1].trim().toLowerCase());
                 tasValeur = valeurCouleur[0].trim();
@@ -222,7 +201,6 @@ public class ControleurJeu extends ControleurCommun {
             System.out.println(imagePath);
             URL resource = getClass().getResource(imagePath);
             if (resource == null) {
-                System.err.println("⚠️ Image non trouvée : " + imagePath);
                 return;
             }
 
@@ -233,7 +211,6 @@ public class ControleurJeu extends ControleurCommun {
     }
 
     private void majMain(String message) {
-        out.println(">> MAJ MAIN appelée avec : " + message);
         int tailleAvant = mainJoueur.getChildren().size();
         mainJoueur.getChildren().clear();
         String[] cartes = message.substring(6).trim().split(" ");
@@ -244,8 +221,7 @@ public class ControleurJeu extends ControleurCommun {
             if (parts.length == 2) {
                 String rawValeur = parts[0];
                 String valeur = switch (rawValeur) {
-                    //case "PTT" -> "Passe";
-                    case "+2" -> "12"; // affichage uniforme (optionnel)
+                    case "+2" -> "12";
                     default -> rawValeur;
                 };
 
@@ -266,11 +242,11 @@ public class ControleurJeu extends ControleurCommun {
                         couleurCarteSelectionnee = couleur;
                         out.println("Carte sélectionnée : " + valeur + " " + couleur);
 
-                        // Effacer l’effet sur toutes les cartes
+                        //Effacer l’effet sur toutes les cartes
                         for (javafx.scene.Node node : mainJoueur.getChildren()) {
                             node.setStyle("");
                         }
-                        // Ajouter un effet visuel sur la carte sélectionnée
+                        //Ajouter un effet visuel sur la carte sélectionnée
                         carteImage.setStyle("-fx-effect: dropshadow(gaussian, yellow, 10, 0.5, 0, 0);");
                     });
                     if (!distributionEnCours) {
@@ -284,7 +260,6 @@ public class ControleurJeu extends ControleurCommun {
                 }
             }
         }
-        // --------> déplace tout ce bloc ici, après la boucle <--------
         int tailleApres = mainJoueur.getChildren().size();
         if (tailleApres == 1 && monTour) {
             boutonUno.setVisible(true);
@@ -305,10 +280,10 @@ public class ControleurJeu extends ControleurCommun {
         }
 
         if (tailleMainPrecedente == -1 && tailleApres == 7) {
-            // Première distribution
+            //Première distribution
             cartesInitiales.clear();
             cartesInitiales.addAll(List.of(cartes));
-            mainJoueur.getChildren().clear(); // vide la main visuelle
+            mainJoueur.getChildren().clear(); //vide la main visuelle
             distributionEnCours = true;
             Platform.runLater(() -> distribuerCartesProgressivement(0));
             return;
@@ -323,7 +298,7 @@ public class ControleurJeu extends ControleurCommun {
 
     private HBox genererCartesCachees(int nombre) {
         HBox hbox = new HBox();
-        hbox.setSpacing(-40); // chevauchement : -40 = superposé
+        hbox.setSpacing(-40); //chevauchement : -40 = superposé
         for (int i = 0; i < nombre; i++) {
             ImageView dosCarte = new ImageView(new Image(getClass().getResource("/images/cartes/carte_dos.png").toExternalForm()));
             dosCarte.setFitHeight(100);
@@ -347,7 +322,7 @@ public class ControleurJeu extends ControleurCommun {
             String nom = split[0];
             int nbCartes = Integer.parseInt(split[1]);
 
-            if (nom.equals(pseudo)) continue; // ne pas afficher ses propres cartes ici
+            if (nom.equals(pseudo)) continue;
 
             joueursSansMoi.add(nom);
             VBox cible;
@@ -359,14 +334,14 @@ public class ControleurJeu extends ControleurCommun {
                 cible = joueurDroite;
             }
 
-// Ajoute le label (nom du joueur) dynamiquement
+            //Nom du joueur
             Label label = new Label(nom);
             cible.getChildren().add(label);
 
-// Ajoute les cartes dos
+            //les cartes dos
             HBox cartesCachees = genererCartesCachees(nbCartes);
             cible.getChildren().add(cartesCachees);
-            // Animation de distribution vers la zone du joueur (7 cartes)
+            //distribution vers la zone du joueur
             if (distributionEnCours) {
                 for (int i = 0; i < 7; i++) {
                     int delayMs = i * 400;
@@ -382,18 +357,18 @@ public class ControleurJeu extends ControleurCommun {
     @FXML
     public void demarrerPartie() {
         ClientUno.getInstance().envoyer("@DEMARRER_PARTIE");
-        boutonDemarrer.setVisible(false); // on le cache après clic
+        boutonDemarrer.setVisible(false); //on le cache après clic
     }
 
     private void gererTour(String message) {
-        String joueurActuel = message.substring(6).trim(); // Supprime "@INFO "
+        String joueurActuel = message.substring(6).trim();
         cartePoseeCeTour = false;
         if (joueurActuel.contains(pseudo)) {
             monTour = true;
             cartePoseeCeTour = false;
             boutonPoseCarte.setDisable(false);
             boutonFinTour.setDisable(true);
-            verifierSiCarteJouable(); // <--- AJOUT IMPORTANT
+            verifierSiCarteJouable();
             labelTour.setText("C’est ton tour !");
         } else {
             monTour = false;
@@ -402,7 +377,6 @@ public class ControleurJeu extends ControleurCommun {
             valeurCarteSelectionnee = null;
             couleurCarteSelectionnee = null;
 
-            // Nettoyer visuellement la sélection éventuelle
             for (javafx.scene.Node node : mainJoueur.getChildren()) {
                 node.setStyle("");
             }
@@ -492,7 +466,7 @@ public class ControleurJeu extends ControleurCommun {
             return;
         }
 
-        animationAPiocher = true; // ✅ Signaler qu’on doit animer
+        animationAPiocher = true;
         ClientUno.getInstance().piocher();
 
         monTour = false;
@@ -522,46 +496,14 @@ public class ControleurJeu extends ControleurCommun {
         }).start();
     }
 
-    /*
+
     private void animerPiocheVersMain() {
-        // Image temporaire depuis la pioche
+        //carte dos qui sera animé
         ImageView carteAnimee = new ImageView(new Image(getClass().getResource("/images/cartes/carte_dos.png").toExternalForm()));
         carteAnimee.setFitWidth(65);
         carteAnimee.setFitHeight(100);
 
-        // Position initiale = position de la pioche
-        carteAnimee.setLayoutX(cartePioche.localToScene(cartePioche.getBoundsInLocal()).getMinX());
-        carteAnimee.setLayoutY(cartePioche.localToScene(cartePioche.getBoundsInLocal()).getMinY());
-
-        // Ajouter à la scène racine
-        ((Pane) mainJoueur.getScene().getRoot()).getChildren().add(carteAnimee);
-
-        // Calcul de la destination (au centre de la main du joueur)
-        double destinationX = mainJoueur.localToScene(mainJoueur.getBoundsInLocal()).getMinX() + mainJoueur.getWidth() / 2 - 32;
-        double destinationY = mainJoueur.localToScene(mainJoueur.getBoundsInLocal()).getMinY();
-
-        // Crée la transition
-        TranslateTransition transition = new TranslateTransition();
-        transition.setNode(carteAnimee);
-        transition.setDuration(Duration.millis(500));
-        transition.setFromX(carteAnimee.getLayoutX());
-        transition.setFromY(carteAnimee.getLayoutY());
-        transition.setToX(destinationX - carteAnimee.getLayoutX());
-        transition.setToY(destinationY - carteAnimee.getLayoutY());
-
-        // Après l’animation, retirer la carte temporaire
-        transition.setOnFinished(e -> ((Pane) mainJoueur.getScene().getRoot()).getChildren().remove(carteAnimee));
-        transition.play();
-    }
-     */
-
-    private void animerPiocheVersMain() {
-        // Crée une carte dos temporaire
-        ImageView carteAnimee = new ImageView(new Image(getClass().getResource("/images/cartes/carte_dos.png").toExternalForm()));
-        carteAnimee.setFitWidth(65);
-        carteAnimee.setFitHeight(100);
-
-        // Récupère la racine
+        //Récupère la racine
         AnchorPane root = (AnchorPane) mainJoueur.getScene().getRoot();
         root.getChildren().add(carteAnimee);
 
@@ -570,25 +512,25 @@ public class ControleurJeu extends ControleurCommun {
         double startX = piocheBoundsScene.getMinX() + piocheBoundsScene.getWidth() / 2;
         double startY = piocheBoundsScene.getMinY() + piocheBoundsScene.getHeight() / 2;
 
-        // Position de destination (centre de mainJoueur dans la scène)
+        //Position de destination (centre de mainJoueur dans la scène)
         Bounds mainBoundsScene = mainJoueur.localToScene(mainJoueur.getBoundsInLocal());
         double endX = mainBoundsScene.getMinX() + mainBoundsScene.getWidth() / 2;
         double endY = mainBoundsScene.getMinY() + mainBoundsScene.getHeight() / 2;
 
-        // Convertir les deux points dans le repère local du root
+        //Convertir les deux points dans le repère local du root
         Point2D startInRoot = root.sceneToLocal(startX, startY);
         Point2D endInRoot = root.sceneToLocal(endX, endY);
 
-        // Place la carte au point de départ
+        //Place la carte au point de départ
         carteAnimee.setLayoutX(startInRoot.getX() - carteAnimee.getFitWidth() / 2);
         carteAnimee.setLayoutY(startInRoot.getY() - carteAnimee.getFitHeight() / 2);
 
-        // Crée la transition
+        //transition
         TranslateTransition transition = new TranslateTransition(Duration.millis(600), carteAnimee);
         transition.setToX(endInRoot.getX() - startInRoot.getX());
         transition.setToY(endInRoot.getY() - startInRoot.getY());
 
-        // Supprime la carte après animation
+        //supprime la carte après animation
         transition.setOnFinished(e -> root.getChildren().remove(carteAnimee));
         transition.play();
     }

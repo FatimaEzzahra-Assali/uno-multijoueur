@@ -65,7 +65,7 @@ public class ControleurMessages extends ControleurCommun {
                             .toList();
 
                     listeUtilisateurs.getItems().setAll(autresUtilisateurs);
-                    listePrives.getItems().setAll(autresUtilisateurs); // 🔁 mettre à jour ici aussi
+                    listePrives.getItems().setAll(autresUtilisateurs);
                 });
             }
         });

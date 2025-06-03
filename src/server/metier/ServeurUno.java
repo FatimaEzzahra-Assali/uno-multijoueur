@@ -324,7 +324,6 @@ public class ServeurUno {
         joueursConnectes.clear();
     }*/
     public void finirManche(Joueur gagnant) {
-       // setPartieEnCours(false);
 
         // 1. Enregistrer la partie dans la BDD
         jdbc.metier.PartieBDD partieBDD = jdbc.DaoPartie.creerNouvellePartie();
@@ -356,8 +355,10 @@ public class ServeurUno {
 
         //On enregistre dans la bdd les scores de chaque joueur
         assert partieBDD != null;
-        for(ConnexionJoueurUno connexion : joueursConnectes){
-            jdbc.DaoScore.enregistrerScore(connexion.getJoueur().getNom(), partieBDD.getId(), connexion.getJoueur().getScore());
+        for (ConnexionJoueurUno connexion : joueursConnectes) {
+            Joueur joueur = connexion.getJoueur();
+            int scoreManche = (joueur == gagnant) ? scoreTotal : 0; // score uniquement de cette manche
+            jdbc.DaoScore.enregistrerScore(joueur.getNom(), partieBDD.getId(), scoreManche);
         }
 
         System.err.println(">> Envoi du message @FIN_MANCHE à tous les joueurs.");
@@ -366,7 +367,20 @@ public class ServeurUno {
             connexion.envoyerFinManche(this, gagnant);
         }
 
+        for (ConnexionJoueurUno c : joueursConnectes) {
+            c.getJoueur().getMain().clear();     // Vide la main du joueur
+            c.getJoueur().resetUno();            // Réinitialise Uno
+            c.getJoueur().setPartie(null);       // Supprime la référence à l’ancienne partie
+        }
+
         // 6. Réinitialiser la partie (mais pas les joueurs connectés)
+        for (ConnexionJoueurUno c : joueursConnectes) {
+            c.getJoueur().getMain().clear();
+            c.getJoueur().resetUno();
+            c.getJoueur().setPartie(null);
+        }
+
+        setPartieEnCours(false); // <-- C’est important ici
         setPartie(null);
     }
 

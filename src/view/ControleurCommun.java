@@ -42,7 +42,7 @@ public class ControleurCommun {
         String messageInfo =
                 "Ce jeu a été développé par Buse COSAR, Tessnim KHELIFA et\n" +
                         "Fatima-Ezahra ASSALI.\n" +
-                        "\nSous l'encadrement de Yann LANUEL et Yeliz MERSIN.";
+                        "\nSous l'encadrement de Yann LANUEL et Ajdin TOPALOVIC.";
         alert.setContentText(messageInfo);
 
         alert.showAndWait();
@@ -89,6 +89,7 @@ public class ControleurCommun {
 
             Scene scene = new Scene(root);
             stage.setScene(scene);
+
             stage.show();
 
         } catch (IOException e) {
