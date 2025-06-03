@@ -87,9 +87,6 @@ public class ConnexionJoueurUno {
     // ******************** fin des méthodes standards ********************************
 
 
-    // ********* gestion du protocole ***********
-
-
     // ********* LE PROTOCOLE *************
 
     //******* MESSAGES REÇUS PAR LE SERVEUR ********
@@ -127,7 +124,7 @@ public class ConnexionJoueurUno {
 	exemple : @LISTE_JOUEURS (Alice;3) (Bob;7) (Chloé;1)
 	Dans cet exemple, il y a 3 joueurs : Alice tient 3 cartes, Bob en tient 7 et Chloé en tient une seule
 	Le message ne donne que le nombre de cartes tenues, pas leurs valeurs évidemment.
-	En général, tous les joueurs recoivent le même message au même moment
+	En général, tous les joueurs reçoivent le même message au même moment
 	*/
     private final static String regexLISTE_JOUEURS = "^@LISTE_JOUEURS (\\[\\w+;\\d+] ?)+$";
 
@@ -261,7 +258,6 @@ public class ConnexionJoueurUno {
                 return;
             }
             serveur.envoyerATous("@DEMARRER " + this.getPseudo() + " à lancé une partie.");
-           // envoyerListeJoueurs(serveur.getJoueursConnectes());
             serveur.lancerPartie();
             serveur.envoyerTas(serveur.getPartie().getTas().sommet());
     }
@@ -273,6 +269,7 @@ public class ConnexionJoueurUno {
         }
         this.serveur.messagePublic(this, message.split(" ", 2)[1].toString());
     }
+
 
     private void traiterMP_TO(String message) {
         if (this.getPseudo() == null || this.getPseudo().isBlank()) {
@@ -287,19 +284,7 @@ public class ConnexionJoueurUno {
             return;
         }
     }
-    /*
-    public void traiterPioche() {
-        Joueur joueur = getJoueur();
-        try {
-            Carte cartePiochee = joueur.piocher(serveur.getPartie());
-            envoyerMessagePioche(cartePiochee);
-        } catch (UNOException e) {
-            envoyerMessageErreur(e.getMessage());
-        }
-        envoyerMessageMain();
 
-    }
-     */
     public void traiterPioche() {
         Joueur joueur = getJoueur();
 
@@ -323,7 +308,7 @@ public class ConnexionJoueurUno {
             // Main mise à jour
             envoyerMessageMain();
 
-            // ➤ Tour terminé, qu'importe la carte
+            //Tour terminé, qu'importe la carte
             serveur.finirTour(this);
 
         } catch (UNOException e) {
@@ -395,11 +380,7 @@ public class ConnexionJoueurUno {
     public void envoyerMessageErreur(String message) {
         envoyer("@ERREUR " + message);
     }
-
-    public void envoyerMessagePublic(ConnexionJoueurUno emetteur, String message) {
-        envoyer("@PUBLIC_FROM " + emetteur.getPseudo() + " " + message);
-    }
-
+    public void envoyerMessagePublic(ConnexionJoueurUno emetteur, String message) {envoyer("@PUBLIC_FROM " + emetteur.getPseudo() + " " + message);}
     public void envoyerMessagePrive(ConnexionJoueurUno emetteur, String message) {envoyer("@MP_FROM " + emetteur.getPseudo() + " " + message);}
     public void envoyerCarteJouee(Carte carte) {
         envoyer("@CARTEJOUEE " + carte.toCode());
@@ -416,9 +397,6 @@ public class ConnexionJoueurUno {
             c.envoyer("@VICTOIRE " + joueurVictoire.getNom() + " à gagné la partie et à obtenu un score de : " + score + " points !");
         }
     }
-    //public void envoyerMessageTas(Carte carte) {
-    //    envoyer("@TAS " + carte.toCode());
-    //}
 
     public void envoyerListeJoueurs(List<ConnexionJoueurUno> joueursConnectes) {
         StringBuilder sb = new StringBuilder("@LISTE_JOUEURS");
@@ -440,7 +418,7 @@ public class ConnexionJoueurUno {
         envoyer(sb.toString());
     }
 
-    public void envoyerFinManche(ServeurUno serveur, Joueur gagnant){
+    public void envoyerFinManche(Joueur gagnant){
         this.envoyer("@FIN_MANCHE Le gagnant de cette manche est : " + gagnant.getNom() + " avec " + gagnant.getScore() + " points.");
     }
 
