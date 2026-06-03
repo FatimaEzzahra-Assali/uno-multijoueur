@@ -220,21 +220,6 @@ src/
 └── test/           # Tests unitaires
 ```
 
----
-
-## Contribution personnelle
-
-Mes principales contributions au projet ont porté sur la couche de persistance des données :
-
-* Développement de la connexion JDBC vers MySQL
-* Implémentation des DAO
-* Gestion des joueurs enregistrés
-* Création et exécution de requêtes SQL préparées
-* Gestion des identifiants générés automatiquement
-* Participation aux phases de test et d'intégration
-
----
-
 ## Captures d'écran
 
 ### Connexion
