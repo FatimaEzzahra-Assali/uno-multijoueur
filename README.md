@@ -220,25 +220,6 @@ src/
 └── test/           # Tests unitaires
 ```
 
-## Captures d'écran
-
-### Connexion
-
-*(Ajouter une capture d'écran de la fenêtre de connexion)*
-
-### Partie
-
-*(Ajouter une capture d'écran d'une partie en cours)*
-
-### Messagerie
-
-*(Ajouter une capture d'écran de la messagerie)*
-
-### Fin de partie
-
-*(Ajouter une capture d'écran de l'écran de fin)*
-
----
 
 ## Améliorations possibles
 
