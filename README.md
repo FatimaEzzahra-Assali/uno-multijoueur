@@ -1,93 +1,298 @@
-# JeuUno
+# UNO Multijoueur
 
+## Présentation
 
+UNO Multijoueur est une application Java permettant de jouer au célèbre jeu de cartes UNO en réseau.
 
-## Getting started
+Le projet a été réalisé dans le cadre du Projet de Synthèse de Licence Informatique et combine plusieurs domaines du développement logiciel :
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+* Programmation Orientée Objet (POO)
+* Développement client/serveur
+* Programmation réseau avec sockets TCP
+* Interface graphique JavaFX
+* Persistance des données avec JDBC et MySQL
+* Tests unitaires
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+L'application permet à plusieurs joueurs de se connecter à un serveur central, de participer à une partie de UNO en temps réel et d'enregistrer les résultats dans une base de données.
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Fonctionnalités
 
+### Gestion du jeu
+
+* Création et gestion d'une partie de UNO
+* Gestion des joueurs connectés
+* Distribution automatique des cartes
+* Gestion des tours de jeu
+* Vérification des coups autorisés
+* Gestion des pénalités
+* Gestion du "UNO !"
+* Détermination du gagnant
+
+### Cartes implémentées
+
+* Cartes simples
+* Cartes +2
+* Cartes Passe Ton Tour
+
+L'architecture a été conçue pour permettre l'ajout facile d'autres cartes spéciales.
+
+---
+
+## Fonctionnalités réseau
+
+Architecture client/serveur basée sur les sockets TCP.
+
+### Côté serveur
+
+* Gestion des connexions multiples
+* Réception et traitement des commandes des joueurs
+* Synchronisation de l'état de la partie
+* Gestion des messages échangés
+
+### Côté client
+
+* Connexion au serveur
+* Réception des mises à jour en temps réel
+* Envoi des actions de jeu
+* Gestion des interactions utilisateur
+
+---
+
+## Interface graphique
+
+L'application dispose d'une interface graphique développée avec JavaFX et FXML.
+
+### Écrans disponibles
+
+* Connexion
+* Accueil
+* Partie
+* Messagerie
+* Fin de partie
+
+### Fonctionnalités graphiques
+
+* Affichage dynamique des cartes
+* Sélection visuelle des cartes jouables
+* Animation de distribution
+* Animation de pioche
+* Mise à jour en temps réel de l'état de la partie
+
+---
+
+## Système de messagerie
+
+Une messagerie intégrée permet aux joueurs de communiquer pendant une partie.
+
+### Fonctionnalités
+
+* Messages publics
+* Messages privés
+* Liste des joueurs connectés
+* Historique des conversations
+
+---
+
+## Base de données
+
+Les données sont stockées dans une base MySQL via JDBC.
+
+### Informations enregistrées
+
+* Joueurs
+* Parties
+* Scores
+
+### Technologies utilisées
+
+* JDBC
+* MySQL
+* PreparedStatement
+* DriverManager
+
+---
+
+## Tests
+
+Des tests unitaires ont été réalisés pour valider :
+
+* Les coups légaux
+* Les coups illégaux
+* Les pénalités
+* Les cartes spéciales
+* Les règles du UNO
+
+Classes de test principales :
+
+* TestLegaux
+* TestPunitions
+* TestDuUno
+* TestCartePlusDeux
+* TestPasseTonTour
+
+---
+
+## Technologies utilisées
+
+* Java
+* JavaFX
+* FXML
+* JDBC
+* MySQL
+* TCP Sockets
+* Threads
+* IntelliJ IDEA
+* Git
+* GitHub
+
+---
+
+## Exécution du projet
+
+Le projet peut être utilisé de deux façons : en mode console ou via l'interface graphique JavaFX.
+
+### Mode console
+
+Pour lancer la version console du jeu, exécuter :
+
+```java
+main.Main
 ```
-cd existing_repo
-git remote add origin https://gitlab.univ-lorraine.fr/khelifa17u/jeuuno.git
-git branch -M main
-git push -uf origin main
+
+Cette version permet d'utiliser le jeu directement depuis le terminal.
+
+---
+
+### Mode graphique (JavaFX)
+
+Pour utiliser l'interface graphique, plusieurs composants doivent être lancés dans l'ordre :
+
+#### 1. Démarrer MySQL
+
+La base de données `projet_uno` doit être accessible avec les paramètres configurés dans les classes JDBC.
+
+#### 2. Lancer le serveur
+
+Exécuter :
+
+```java
+server.app.AppServeurUno
 ```
 
-## Integrate with your tools
+Le serveur gère les connexions des joueurs, la logique réseau et l'enregistrement des données.
 
-- [ ] [Set up project integrations](https://gitlab.univ-lorraine.fr/khelifa17u/jeuuno/-/settings/integrations)
+#### 3. Lancer le client graphique
 
-## Collaborate with your team
+Exécuter :
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```java
+view.Accueil
+```
 
-## Test and Deploy
+Une fenêtre de connexion s'ouvre alors.
 
-Use the built-in continuous integration in GitLab.
+#### 4. Se connecter
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+- Saisir un pseudo.
+- Cliquer sur **Connexion**.
+- Attendre que les autres joueurs rejoignent la partie.
+- Le premier joueur connecté peut démarrer la partie.
 
-***
+---
 
-# Editing this README
+### Remarque
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Si MySQL n'est pas démarré, l'interface graphique peut tout de même s'ouvrir, mais certaines fonctionnalités liées à la persistance des données (joueurs, parties, scores) ne seront pas disponibles.
 
-## Suggestions for a good README
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Architecture du projet
 
-## Name
-Choose a self-explaining name for your project.
+```text
+src/
+├── model/          # Logique métier du jeu
+├── network/        # Client réseau
+├── server/         # Serveur multijoueur
+├── jdbc/           # Accès aux données
+├── view/           # Interface JavaFX
+├── console/        # Outils console
+└── test/           # Tests unitaires
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+---
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## Contribution personnelle
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Mes principales contributions au projet ont porté sur la couche de persistance des données :
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+* Développement de la connexion JDBC vers MySQL
+* Implémentation des DAO
+* Gestion des joueurs enregistrés
+* Création et exécution de requêtes SQL préparées
+* Gestion des identifiants générés automatiquement
+* Participation aux phases de test et d'intégration
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+---
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Captures d'écran
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Connexion
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+*(Ajouter une capture d'écran de la fenêtre de connexion)*
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Partie
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+*(Ajouter une capture d'écran d'une partie en cours)*
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Messagerie
 
-## License
-For open source projects, say how it is licensed.
+*(Ajouter une capture d'écran de la messagerie)*
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Fin de partie
+
+*(Ajouter une capture d'écran de l'écran de fin)*
+
+---
+
+## Améliorations possibles
+
+* Ajout des cartes Joker
+* Ajout des cartes +4
+* Statistiques des joueurs
+* Historique des parties
+* Gestion de plusieurs parties simultanées
+* Déploiement en ligne
+
+---
+
+## Configuration JavaFX
+
+Le projet a été développé avec JavaFX.
+
+Si l'erreur suivante apparaît :
+
+```text
+JavaFX runtime components are missing
+```
+
+ajouter les options VM suivantes dans IntelliJ IDEA :
+
+```text
+--module-path "CHEMIN_VERS_JAVAFX/lib" --add-modules javafx.controls,javafx.fxml
+```
+
+## Auteurs
+
+Projet réalisé dans le cadre du Projet de Synthèse de Licence Informatique.
+
+Équipe :
+
+* Fatima Ezzahra Assali
+* Buse Cosar
+* Tessnim Khelifa
+
+Encadrants :
+
+* Yann Lanuel
+* Ajdin Topalovic
